@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0F11">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jesús González">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="canonical" href="https://jesusrlgonzalez.github.io/">
+<meta property="og:url" content="https://jesusrlgonzalez.github.io/">
+<meta property="og:image" content="https://jesusrlgonzalez.github.io/icons/icon-512.png">
+<meta property="og:title" content="Jesús R. L. González">
+<meta property="og:description" content="Analítica de calidad y operaciones para manufactura: decisiones en pesos.">
+<title>Jesús R. L. González</title>
+<meta name="description" content="Analítica de calidad y operaciones para manufactura: scrap, alertas y defectos convertidos en decisiones en pesos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Señal de campo (sistema de las páginas de proyecto): banda negra, amarillo vial como única señal,
+   rojo y verde solo para veredictos; columna de lectura de 68rem, filas de producto como tabla de decisiones. */
+:root{
+  --bg:#FFFFFF; --surface:#F6F7F5; --ink:#0E0F11; --muted:#4A4E54; --line:#C9CDD1;
+  --signal:#FFD21F; --signal-ink:#0E0F11; --band:#0E0F11; --band-ink:#FFFFFF;
+  --no:#D7261E; --yes:#1F7A3D; --chip-real:#E7F1EA; --chip-sim:#EEF0F6; --chip-syn:#FFF6D1;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101215; --surface:#171A1E; --ink:#F2F3F1; --muted:#A9AEB4; --line:#2E3339;
+  --signal:#FFD21F; --signal-ink:#0E0F11; --band:#070809; --band-ink:#F2F3F1;
+  --no:#FF6B5F; --yes:#4CC27A; --chip-real:#18301F; --chip-sim:#1F2430; --chip-syn:#3A3212; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101215; --surface:#171A1E; --ink:#F2F3F1; --muted:#A9AEB4; --line:#2E3339;
+  --signal:#FFD21F; --signal-ink:#0E0F11; --band:#070809; --band-ink:#F2F3F1;
+  --no:#FF6B5F; --yes:#4CC27A; --chip-real:#18301F; --chip-sim:#1F2430; --chip-syn:#3A3212; color-scheme:dark}
+
+:root:not([data-lang="en"]) [lang="en"]{display:none!important}
+:root[data-lang="en"] [lang="es"]{display:none!important}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.55;font-variant-numeric:tabular-nums}
+a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:1.5px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px;box-shadow:0 0 0 5px var(--signal);border-radius:4px}
+.wrap{max-width:68rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.02;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.9rem,4vw,2.6rem)}
+h3{font-size:1.35rem;line-height:1.1}
+p{margin:0}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Banda superior */
+.top{background:var(--band);color:var(--band-ink)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-block:.85rem}
+.brand{font-family:var(--display);font-weight:700;font-size:1.3rem;text-decoration:none;letter-spacing:.01em}
+.top nav{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;font-size:.95rem;font-weight:600}
+.top nav a{text-decoration:none}
+.top nav a:hover{text-decoration:underline}
+.lang{display:inline-flex;border:1.5px solid var(--band-ink);border-radius:999px;overflow:hidden}
+.lang button{font:600 .8rem/1 var(--body);letter-spacing:.06em;padding:.4rem .7rem;background:transparent;color:var(--band-ink);border:0;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--signal);color:var(--signal-ink)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:3rem;align-items:center;padding-block:3.5rem 3rem}
+.hero > *{min-width:0}
+.hero h1{font-size:clamp(2.8rem,7vw,4.6rem);margin:.6rem 0 1.1rem}
+.lede{font-size:clamp(1.2rem,2.2vw,1.45rem);line-height:1.4;max-width:34ch}
+.lede mark{background:linear-gradient(transparent 58%,var(--signal) 58%);color:inherit;padding:0 .1em}
+.creds{display:flex;flex-wrap:wrap;gap:.4rem .9rem;margin-top:1.4rem;color:var(--muted);font-size:.95rem}
+.creds > span{white-space:normal}
+.creds > span+span::before{content:"·";margin-right:.9rem;color:var(--muted)}
+.ctas{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.8rem}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;text-decoration:none;padding:.8rem 1.15rem;border-radius:6px;border:2px solid var(--ink);transition:transform .15s var(--ease)}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--signal);color:var(--signal-ink);border-color:var(--signal)}
+.note{margin-top:.9rem;font-size:.9rem;color:var(--muted)}
+
+/* Ficha de dictamen */
+.verdict{border:2px solid var(--ink);border-radius:8px;background:var(--bg);overflow:hidden}
+.verdict header{background:var(--ink);color:var(--bg);padding:.7rem 1rem;display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+.verdict header b{font-family:var(--display);font-size:1.15rem;letter-spacing:.04em;text-transform:uppercase}
+.verdict header small{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.verdict dl{margin:0;padding:1rem;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.55rem 1rem;font-size:.95rem}
+.verdict dt{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:.18rem}
+.verdict dd{margin:0}
+.verdict .out{border-top:1px dashed var(--line);padding:.9rem 1rem 1rem;display:flex;flex-wrap:wrap;gap:.45rem}
+.pill{font-size:.82rem;font-weight:600;padding:.35rem .65rem;border-radius:999px;border:1.5px solid var(--line);color:var(--muted)}
+.pill.on{border-color:var(--no);color:var(--no);background:color-mix(in srgb,var(--no) 10%,transparent)}
+.pill.on::before{content:"✓ "}
+
+/* Secciones */
+section{padding-block:3.2rem}
+.band-soft{background:var(--surface)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:1rem 2rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.sec-head p{max-width:46ch;color:var(--muted)}
+
+/* Productos */
+.products{border-top:2px solid var(--ink)}
+.prod{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.35fr) 11.5rem;gap:.6rem 2rem;padding-block:1.35rem;border-bottom:1px solid var(--line);align-items:start}
+.prod > *{min-width:0}
+.prod .q{font-family:var(--display);font-weight:600;font-size:1.4rem;line-height:1.12}
+.prod .name{display:block;margin-top:.35rem;font-family:var(--body);font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.prod .res b{font-weight:600}
+.chip{display:inline-block;margin-top:.55rem;font-size:.78rem;font-weight:600;padding:.25rem .55rem;border-radius:4px;color:var(--ink)}
+.chip.real{background:var(--chip-real)} .chip.sim{background:var(--chip-sim)} .chip.syn{background:var(--chip-syn)}
+.prod .links{display:flex;flex-direction:column;gap:.45rem;align-items:flex-start;white-space:nowrap}
+.prod .links a{font-weight:600}
+.prod .links a.try{background:var(--signal);color:var(--signal-ink);text-decoration:none;padding:.45rem .75rem;border-radius:5px}
+.disclaimer{margin-top:1.2rem;font-size:.92rem;color:var(--muted);max-width:70ch}
+
+/* Método */
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem;counter-reset:s}
+.steps li{counter-increment:s;border-top:3px solid var(--ink);padding-top:.8rem;min-width:0}
+.steps li::before{content:counter(s);font-family:var(--display);font-weight:700;font-size:2rem;line-height:1;display:block;margin-bottom:.4rem}
+.steps b{display:block;font-weight:600;margin-bottom:.25rem}
+.steps span{font-size:.92rem;color:var(--muted)}
+.then{margin-top:1.6rem;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;font-weight:600}
+.then .pill{color:var(--ink);border-color:var(--ink)}
+
+/* Formatos */
+.formats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem}
+.fmt{border:1.5px solid var(--line);border-radius:8px;padding:1.3rem;background:var(--bg);display:flex;flex-direction:column;gap:.55rem;min-width:0}
+.fmt .dur{font-size:.85rem;font-weight:600;color:var(--muted)}
+.fmt.lead{border:2px solid var(--ink);box-shadow:6px 6px 0 var(--signal)}
+
+/* Kriter */
+.kriter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin-top:1.4rem}
+.eng{border-left:3px solid var(--line);padding:.2rem 0 .2rem 1.1rem;min-width:0}
+.eng p{color:var(--muted);font-size:.95rem;margin-top:.4rem}
+.eng .ver{color:var(--ink);font-weight:600}
+.status{display:inline-block;margin-top:.8rem;font-size:.8rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;border:1.5px dashed var(--muted);color:var(--muted)}
+
+/* Base */
+.about{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2.5rem}
+.about > *{min-width:0}
+.about p+p{margin-top:.9rem}
+.about .body p{max-width:62ch}
+.tags h3{font-size:1rem;font-family:var(--body);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.tags ul{list-style:none;margin:0 0 1.4rem;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
+.tags li{font-size:.88rem;border:1px solid var(--line);border-radius:4px;padding:.2rem .5rem}
+
+/* Contacto */
+.contact{background:var(--band);color:var(--band-ink)}
+.contact .wrap{padding-block:3rem;display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;align-items:end}
+.contact h2{color:var(--band-ink)}
+.contact p{max-width:44ch;margin-top:.7rem;opacity:.85}
+.contact .links{display:flex;flex-wrap:wrap;gap:.7rem}
+.contact .btn{border-color:var(--band-ink);color:var(--band-ink)}
+.contact .btn.primary{color:var(--signal-ink);border-color:var(--signal)}
+.foot{font-size:.85rem;color:var(--muted);padding-block:1.3rem}
+
+.filters{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.filters button{font:600 .85rem/1 var(--body);padding:.5rem .85rem;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:2rem;align-items:start}
+.calc > *{min-width:0}
+.calc-in{display:grid;gap:.45rem}
+.calc-in label{font-weight:600;font-size:.95rem;margin-top:.7rem;display:flex;justify-content:space-between;gap:1rem}
+.calc-in label:first-child{margin-top:0}
+.calc-in input[type=number]{font:500 1.15rem var(--body);padding:.65rem .75rem;border:1.5px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+.calc-in input[type=range]{width:100%;accent-color:var(--ink)}
+.calc-in output{font-weight:600}
+.hint{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+.calc-out{border:2px solid var(--ink);border-radius:8px;padding:1.3rem;background:var(--bg)}
+.big{font-family:var(--display);font-size:clamp(1.6rem,3.4vw,2.2rem);line-height:1.1;margin:.4rem 0 1.2rem}
+.big b{background:linear-gradient(transparent 58%,var(--signal) 58%)}
+.scale{position:relative;height:38px;background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:visible}
+.zone{position:absolute;top:0;bottom:0;right:0;background:color-mix(in srgb,var(--signal) 45%,transparent)}
+.mark{position:absolute;top:-6px;bottom:-6px;width:3px;transform:translateX(-1.5px);font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.mark span{position:absolute;left:6px;white-space:nowrap}
+.mark.thr{background:var(--ink)} .mark.thr span{top:-1.2rem}
+.mark.risk{background:var(--no)} .mark.risk span{bottom:-1.25rem;color:var(--no)}
+.axis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:1.4rem}
+.decision{margin-top:1rem;font-weight:600;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.pill.on-act{border-color:var(--ink);color:var(--ink)}
+.pill.on-act.check{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.costs{margin:1rem 0 0;display:grid;grid-template-columns:auto auto;justify-content:start;gap:.35rem 1.4rem;font-size:.95rem}
+.costs dt{color:var(--muted)} .costs dd{margin:0;font-weight:600}
+.costs dd.best::after{content:" ✓";color:var(--yes)}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:2rem;padding-block:2.5rem 2rem}
+  .prod{grid-template-columns:1fr;gap:.5rem}
+  .prod .links{flex-direction:row;flex-wrap:wrap;margin-top:.3rem}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .formats,.kriter,.about{grid-template-columns:1fr}
+}
+@media (max-width:440px){.steps{grid-template-columns:1fr}.creds > span+span::before{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.install{font:600 .8rem/1 var(--body);letter-spacing:.04em;padding:.45rem .8rem;border-radius:999px;border:0;background:var(--signal);color:var(--signal-ink);cursor:pointer}
+.ios-tip{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--band);color:var(--band-ink);padding:.9rem max(16px,env(safe-area-inset-right,0px)) calc(.9rem + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;gap:1rem;align-items:center;justify-content:space-between;font-size:.95rem;box-shadow:0 -4px 0 var(--signal)}
+.ios-tip button{font:600 .85rem/1 var(--body);background:transparent;color:var(--band-ink);border:1.5px solid var(--band-ink);border-radius:999px;padding:.45rem .8rem;cursor:pointer}
+.offline{display:inline-block;margin-left:.6rem;font-size:.75rem;font-weight:600;padding:.15rem .5rem;border-radius:999px;background:var(--signal);color:var(--signal-ink)}
+</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio">Jesús R. L. González</a>
+    <nav aria-label="Secciones">
+      <a href="#productos"><span lang="es">Productos</span><span lang="en">Products</span></a>
+      <a href="#metodo"><span lang="es">Método</span><span lang="en">Method</span></a>
+      <a href="#calcula"><span lang="es">Calcula</span><span lang="en">Calculator</span></a>
+      <a href="#formatos"><span lang="es">Cómo trabajo</span><span lang="en">How I work</span></a>
+      <a href="#contacto"><span lang="es">Contacto</span><span lang="en">Contact</span></a>
+      <button type="button" id="install" class="install" hidden><span lang="es">Instalar app</span><span lang="en">Install app</span></button>
+      <span class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" id="btn-es" data-set="es" aria-pressed="true">ES</button>
+        <button type="button" id="btn-en" data-set="en" aria-pressed="false">EN</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="eyebrow"><span lang="es">Analítica de calidad y operaciones · Manufactura</span><span lang="en">Quality and operations analytics · Manufacturing</span></p>
+      <h1>Jesús R. L. González</h1>
+      <p class="lede" lang="es">Convierto scrap, alertas de falla y defectos en <mark>decisiones en pesos</mark>. Y antes de que inviertas, te digo si tus datos sostienen un modelo.</p>
+      <p class="lede" lang="en">I turn scrap, failure alerts and defects into <mark>cost-based decisions</mark>. Before you invest, I tell you whether your data can support a model.</p>
+      <p class="creds">
+        <span><span lang="es">Científico de datos de calidad y manufactura</span><span lang="en">Manufacturing quality &amp; operations data scientist</span></span>
+        <span><span lang="es">Curso de Auditor Líder ISO 9001:2015 aprobado (CQI-IRCA #18007)</span><span lang="en">ISO 9001:2015 Lead Auditor course passed (CQI-IRCA #18007)</span></span>
+        <span><span lang="es">Formación dual alemana de 4 años (IHK, VDA)</span><span lang="en">4-year German dual apprenticeship (IHK, VDA)</span></span>
+        <span>Puebla–Tlaxcala · ES / DE</span>
+      </p>
+      <div class="ctas">
+        <a class="btn primary" href="#productos"><span lang="es">Prueba una demo con tu Excel</span><span lang="en">Try a demo with your Excel</span></a>
+        <a class="btn" href="https://www.linkedin.com/in/jesus-r-l-gonzalez" target="_blank" rel="noopener"><span lang="es">Escríbeme en LinkedIn</span><span lang="en">Message me on LinkedIn</span></a>
+      </div>
+      <p class="note" lang="es">Las herramientas corren en tu navegador: tus datos no salen de tu computadora.</p>
+      <p class="note" lang="en">The tools run in your browser: your data never leaves your computer.</p>
+    </div>
+
+    <article class="verdict" aria-label="Ejemplo de dictamen">
+      <header><b lang="es">Dictamen de viabilidad</b><b lang="en">Viability verdict</b><small lang="es">Caso real</small><small lang="en">Real case</small></header>
+      <dl>
+        <dt lang="es">Proceso</dt><dt lang="en">Process</dt>
+        <dd lang="es">Lotes de semiconductores · UCI SECOM, 1,567 lotes, 590 sensores</dd><dd lang="en">Semiconductor lots · UCI SECOM, 1,567 lots, 590 sensors</dd>
+        <dt lang="es">Hallazgo</dt><dt lang="en">Finding</dt>
+        <dd lang="es">El ahorro del modelo no se distingue de cero</dd><dd lang="en">The model's savings are indistinguishable from zero</dd>
+        <dt lang="es">Evidencia</dt><dt lang="en">Evidence</dt>
+        <dd>IC95 % −22 mil a +20 mil MXN</dd>
+        <dt lang="es">Criterio</dt><dt lang="en">Criterion</dt>
+        <dd lang="es">Validación cronológica sin fuga; umbral elegido por costo de la no calidad</dd><dd lang="en">Chronological validation without leakage; threshold chosen by cost of poor quality</dd>
+      </dl>
+      <div class="out" role="list" aria-label="Veredicto">
+        <span class="pill" role="listitem" lang="es">Desplegar</span><span class="pill" role="listitem" lang="en">Deploy</span>
+        <span class="pill on" role="listitem" lang="es">No desplegar</span><span class="pill on" role="listitem" lang="en">Do not deploy</span>
+        <span class="pill" role="listitem" lang="es">Recolectar más datos</span><span class="pill" role="listitem" lang="en">Collect more data</span>
+      </div>
+    </article>
+  </div>
+
+  <section id="productos" class="band-soft">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2><span lang="es">Seis productos que puedes probar hoy</span><span lang="en">Six products you can test today</span></h2>
+        <p lang="es">Cada uno responde una decisión concreta de planta o de ruta, con código abierto, pruebas automáticas y demo.</p>
+        <p lang="en">Each one answers a concrete plant or route decision, with open code, automated tests and a demo.</p>
+      </div>
+
+      <div class="filters" role="group" aria-label="Filtrar por tipo de dato">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true"><span lang="es">Todos</span><span lang="en">All</span></button>
+        <button type="button" id="f-real" data-f="real" aria-pressed="false"><span lang="es">Datos reales</span><span lang="en">Real data</span></button>
+        <button type="button" id="f-sim" data-f="sim" aria-pressed="false"><span lang="es">Simulados</span><span lang="en">Simulated</span></button>
+        <button type="button" id="f-syn" data-f="syn" aria-pressed="false"><span lang="es">Sintéticos</span><span lang="en">Synthetic</span></button>
+      </div>
+      <div class="products">
+        <div class="prod">
+          <p class="q"><span lang="es">¿Vale la pena desplegar un modelo de calidad?</span><span lang="en">Is a quality model worth deploying?</span><span class="name" lang="es">Dictamen de viabilidad</span><span class="name" lang="en">Viability verdict</span></p>
+          <div class="res">
+            <p lang="es">El ahorro no se distingue de cero (IC95 % −22 mil a +20 mil MXN): <b>no desplegar</b>, con el tamaño de muestra necesario.</p>
+            <p lang="en">Savings indistinguishable from zero (95 % CI −22k to +20k MXN): <b>do not deploy</b>, with the required sample size.</p>
+            <span class="chip real"><span lang="es">Real · UCI SECOM, 1,567 lotes</span><span lang="en">Real · UCI SECOM, 1,567 lots</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://huggingface.co/spaces/JesusRLGonzalez/predictive-quality-mlops" target="_blank" rel="noopener"><span lang="es">Evalúa tu proceso</span><span lang="en">Evaluate your process</span></a>
+            <a href="https://github.com/jesusrlgonzalez/predictive-quality-mlops" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+
+        <div class="prod">
+          <p class="q"><span lang="es">¿Qué alertas de la flota merecen ir a taller?</span><span lang="en">Which fleet alerts deserve a workshop check?</span><span class="name" lang="es">Calibrador de alertas</span><span class="name" lang="en">Alert calibrator</span></p>
+          <div class="res">
+            <p lang="es">Costo oficial de 187,500 a 11,540 (<b>−94 %</b>), 95.7 % de fallas detectadas; conjunto de prueba evaluado una sola vez.</p>
+            <p lang="en">Official cost from 187,500 to 11,540 (<b>−94 %</b>), 95.7 % of failures caught; test set evaluated once.</p>
+            <span class="chip real"><span lang="es">Real · Scania APS</span><span lang="en">Real · Scania APS</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://huggingface.co/spaces/JesusRLGonzalez/aps-failure-intelligence" target="_blank" rel="noopener"><span lang="es">Tus alertas</span><span lang="en">Your alerts</span></a>
+            <a href="https://github.com/jesusrlgonzalez/aps-failure-intelligence" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+
+        <div class="prod">
+          <p class="q"><span lang="es">¿Adónde se va el costo de la no calidad?</span><span lang="en">Where does the cost of poor quality go?</span><span class="name" lang="es">Scrap en pesos</span><span class="name" lang="en">Scrap in pesos</span></p>
+          <div class="res">
+            <p lang="es">Palancas por <b>1.23 M MXN al año</b> (14.5 % del COPQ) y reporte 8D descargable.</p>
+            <p lang="en">Levers worth <b>MXN 1.23 M per year</b> (14.5 % of COPQ) and a downloadable 8D report.</p>
+            <span class="chip syn"><span lang="es">Sintético · planta de autopartes</span><span lang="en">Synthetic · auto-parts plant</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics" target="_blank" rel="noopener"><span lang="es">Tus datos</span><span lang="en">Your data</span></a>
+            <a href="https://github.com/jesusrlgonzalez/scrap-copq-analytics" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+
+        <div class="prod">
+          <p class="q"><span lang="es">¿Qué equipos intervengo esta semana?</span><span lang="en">Which units do I service this week?</span><span class="name" lang="es">Lista de intervención</span><span class="name" lang="en">Intervention list</span></p>
+          <div class="res">
+            <p lang="es"><b>−40 %</b> de costo frente al reemplazo por edad; C-index 0.85 (IC95 % 0.80–0.89).</p>
+            <p lang="en"><b>−40 %</b> cost vs age-based replacement; C-index 0.85 (95 % CI 0.80–0.89).</p>
+            <span class="chip sim"><span lang="es">Simulado · NASA C-MAPSS</span><span lang="en">Simulated · NASA C-MAPSS</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://huggingface.co/spaces/JesusRLGonzalez/predictive-maintenance-survival-cmapss" target="_blank" rel="noopener"><span lang="es">Tu flota</span><span lang="en">Your fleet</span></a>
+            <a href="https://github.com/jesusrlgonzalez/predictive-maintenance-survival-cmapss" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+
+        <div class="prod">
+          <p class="q"><span lang="es">¿Qué resultados de inspección debe revisar una persona?</span><span lang="en">Which inspection results should a person review?</span><span class="name" lang="es">Triaje de revisión</span><span class="name" lang="en">Review triage</span></p>
+          <div class="res">
+            <p lang="es">Los 5 escapes reales cayeron dentro del intervalo previsto (0 a 8.2).</p>
+            <p lang="en">The 5 real escapes fell inside the predicted interval (0 to 8.2).</p>
+            <span class="chip real"><span lang="es">Real · 1,941 placas de acero</span><span lang="en">Real · 1,941 steel plates</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://huggingface.co/spaces/JesusRLGonzalez/steel-plates-quality-mlops" target="_blank" rel="noopener"><span lang="es">Tus resultados</span><span lang="en">Your results</span></a>
+            <a href="https://github.com/jesusrlgonzalez/steel-plates-quality-mlops" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+
+        <div class="prod">
+          <p class="q"><span lang="es">¿Cuánto dejar en cada tienda de la ruta?</span><span lang="en">How much should each store on the route get?</span><span class="name">Predix</span></p>
+          <div class="res">
+            <p lang="es">Error de pronóstico (WAPE) de 31.7 % a 22.1 %; <b>−52 % de merma</b> en simulación.</p>
+            <p lang="en">Forecast error (WAPE) from 31.7 % to 22.1 %; <b>−52 % waste</b> in simulation.</p>
+            <span class="chip syn"><span lang="es">Sintético</span><span lang="en">Synthetic</span></span>
+          </div>
+          <div class="links">
+            <a class="try" href="https://jesusrlgonzalez.github.io/predix/ruta/" target="_blank" rel="noopener"><span lang="es">App de ruta</span><span lang="en">Route app</span></a>
+            <a href="https://github.com/jesusrlgonzalez/predix" target="_blank" rel="noopener"><span lang="es">Código</span><span lang="en">Code</span></a>
+          </div>
+        </div>
+      </div>
+      <p class="disclaimer" lang="es">Cada caso declara si sus datos son reales, simulados o sintéticos. Los resultados con datos sintéticos demuestran el método, no impacto en un cliente.</p>
+      <p class="disclaimer" lang="en">Every case states whether its data is real, simulated or synthetic. Results from synthetic data demonstrate the method, not client impact.</p>
+    </div>
+  </section>
+
+  <section id="metodo">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2><span lang="es">Lo que tienen en común</span><span lang="en">What every project has in common</span></h2>
+        <p lang="es">El mismo recorrido en los seis casos, de los datos de planta al veredicto.</p>
+        <p lang="en">The same path in all six cases, from plant data to verdict.</p>
+      </div>
+      <ol class="steps">
+        <li><b lang="es">Datos etiquetados</b><b lang="en">Labeled data</b><span lang="es">Real, simulado o sintético, siempre declarado.</span><span lang="en">Real, simulated or synthetic, always stated.</span></li>
+        <li><b lang="es">Línea base primero</b><b lang="en">Baseline first</b><span lang="es">Un modelo solo vale si mejora la regla actual.</span><span lang="en">A model only counts if it beats the current rule.</span></li>
+        <li><b lang="es">Validación temporal</b><b lang="en">Time-based validation</b><span lang="es">Sin fuga de información entre pasado y futuro.</span><span lang="en">No leakage between past and future.</span></li>
+        <li><b lang="es">Umbral por costo</b><b lang="en">Cost-based threshold</b><span lang="es">El corte se elige por el costo del error, no por exactitud.</span><span lang="en">The cutoff is chosen by cost of error, not accuracy.</span></li>
+        <li><b lang="es">Incertidumbre visible</b><b lang="en">Visible uncertainty</b><span lang="es">Intervalos y bootstrap en cada cifra que importa.</span><span lang="en">Intervals and bootstrap on every number that matters.</span></li>
+      </ol>
+      <p class="then"><span lang="es">Veredicto:</span><span lang="en">Verdict:</span>
+        <span class="pill"><span lang="es">Desplegar</span><span lang="en">Deploy</span></span>
+        <span class="pill"><span lang="es">No desplegar</span><span lang="en">Do not deploy</span></span>
+        <span class="pill"><span lang="es">Recolectar más datos</span><span lang="en">Collect more data</span></span>
+      </p>
+    </div>
+  </section>
+
+
+  <section id="calcula">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2><span lang="es">Calcula tu umbral de inspección</span><span lang="en">Work out your inspection threshold</span></h2>
+        <p lang="es">Con dos costos de tu planta, la misma regla que usan el Calibrador de alertas y Kriter COPQ Core decide cuándo conviene revisar.</p>
+        <p lang="en">With two costs from your plant, the same rule used by the Alert calibrator and Kriter COPQ Core decides when a check pays off.</p>
+      </div>
+      <div class="calc">
+        <form class="calc-in" id="calc-form" novalidate>
+          <label for="c-fp"><span lang="es">Costo de revisar sin necesidad (falsa alarma), MXN</span><span lang="en">Cost of an unnecessary check (false alarm), MXN</span></label>
+          <input id="c-fp" type="number" inputmode="decimal" min="1" step="any" value="450">
+          <label for="c-fn"><span lang="es">Costo de dejar pasar una falla, MXN</span><span lang="en">Cost of letting a failure through, MXN</span></label>
+          <input id="c-fn" type="number" inputmode="decimal" min="1" step="any" value="12000">
+          <label for="p-risk"><span lang="es">Riesgo de falla de esta pieza o alerta</span><span lang="en">Failure risk of this part or alert</span> <output id="p-out" for="p-risk">6 %</output></label>
+          <input id="p-risk" type="range" min="0" max="30" step="0.5" value="6">
+          <p class="hint" lang="es">Ejemplo con cifras ilustrativas. Cambia los valores por los de tu planta.</p>
+          <p class="hint" lang="en">Example with illustrative figures. Replace them with your plant's.</p>
+        </form>
+        <div class="calc-out" aria-live="polite">
+          <p class="eyebrow"><span lang="es">Regla</span><span lang="en">Rule</span>: C<sub>FP</sub> / (C<sub>FP</sub> + C<sub>FN</sub>)</p>
+          <p class="big"><span lang="es">Revisa todo lo que supere</span><span lang="en">Check everything above</span> <b id="t-out">3.6 %</b></p>
+          <div class="scale" aria-hidden="true">
+            <div class="zone" id="zone"></div>
+            <div class="mark thr" id="m-thr"><span lang="es">umbral</span><span lang="en">threshold</span></div>
+            <div class="mark risk" id="m-risk"><span lang="es">riesgo</span><span lang="en">risk</span></div>
+          </div>
+          <div class="axis" aria-hidden="true"><span>0 %</span><span>10 %</span><span>20 %</span><span>30 %</span></div>
+          <p class="decision"><span lang="es">Con este riesgo:</span><span lang="en">At this risk:</span> <span class="pill on-act" id="d-act"></span></p>
+          <dl class="costs">
+            <dt lang="es">Si revisas, por cada 1,000</dt><dt lang="en">If you check, per 1,000</dt><dd id="k-check">—</dd>
+            <dt lang="es">Si dejas pasar, por cada 1,000</dt><dt lang="en">If you let it pass, per 1,000</dt><dd id="k-pass">—</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="formatos" class="band-soft">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2><span lang="es">Cómo trabajo con una planta</span><span lang="en">How I work with a plant</span></h2>
+        <p lang="es">Se empieza con un dictamen acotado. El piloto y el monitoreo llegan solo si el dictamen los justifica.</p>
+        <p lang="en">It starts with a scoped verdict. Pilot and monitoring follow only if the verdict justifies them.</p>
+      </div>
+      <div class="formats">
+        <div class="fmt lead">
+          <h3><span lang="es">Dictamen fijo</span><span lang="en">Fixed-scope verdict</span></h3>
+          <p class="dur"><span lang="es">1–2 semanas · tus datos históricos</span><span lang="en">1–2 weeks · your historical data</span></p>
+          <p lang="es">Dictamen de una página: desplegar, no desplegar o recolectar más datos. O diagnóstico de scrap en pesos.</p>
+          <p lang="en">One-page verdict: deploy, do not deploy or collect more data. Or a scrap diagnosis in pesos.</p>
+        </div>
+        <div class="fmt">
+          <h3><span lang="es">Piloto controlado</span><span lang="en">Controlled pilot</span></h3>
+          <p class="dur"><span lang="es">6–12 semanas</span><span lang="en">6–12 weeks</span></p>
+          <p lang="es">Retrospectiva, modo sombra y acción con grupo de control. Criterios de éxito y de abandono acordados antes de empezar.</p>
+          <p lang="en">Backtest, shadow mode and action with a control group. Success and stop criteria agreed before starting.</p>
+        </div>
+        <div class="fmt">
+          <h3><span lang="es">Suscripción</span><span lang="en">Subscription</span></h3>
+          <p class="dur"><span lang="es">Mensual</span><span lang="en">Monthly</span></p>
+          <p lang="es">Lista o monitor semanal (alertas, mantenimiento, revisión) con chequeo de deriva.</p>
+          <p lang="en">Weekly list or monitor (alerts, maintenance, review) with drift checks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kriter">
+    <div class="wrap">
+      <p class="eyebrow"><span lang="es">En desarrollo</span><span lang="en">In development</span></p>
+      <h2 style="margin-top:.4rem">Kriter Systems</h2>
+      <p style="margin-top:.7rem;max-width:60ch;color:var(--muted)" lang="es">Dos motores de decisión industrial independientes, en revisión privada. Los enlaces se publicarán cuando sean públicos.</p>
+      <p style="margin-top:.7rem;max-width:60ch;color:var(--muted)" lang="en">Two independent industrial decision engines, in private review. Links will be added once public.</p>
+      <div class="kriter">
+        <div class="eng">
+          <h3>Kriter Dispatch Engine</h3>
+          <p lang="es">Qué vehículo visita a qué cliente y en qué orden. CVRPTW dirigido con Google OR-Tools y verificador de rutas independiente.</p>
+          <p lang="en">Which vehicle visits which customer, in what order. Directed CVRPTW with Google OR-Tools and an independent route verifier.</p>
+          <p class="ver" lang="es">49 pruebas, 0 omitidas, 96.9 % de cobertura</p><p class="ver" lang="en">49 tests, 0 skipped, 96.9 % coverage</p>
+        </div>
+        <div class="eng">
+          <h3>Kriter COPQ Core</h3>
+          <p lang="es">Cuándo vale la pena una inspección. Calibración Platt o isotónica y umbral por costo C<sub>FP</sub> / (C<sub>FP</sub> + C<sub>FN</sub>), con pruebas de fuga.</p>
+          <p lang="en">When an inspection is worth its cost. Platt or isotonic calibration and cost threshold C<sub>FP</sub> / (C<sub>FP</sub> + C<sub>FN</sub>), leakage-tested.</p>
+          <p class="ver" lang="es">38 pruebas, 100 % de cobertura</p><p class="ver" lang="en">38 tests, 100 % coverage</p>
+        </div>
+      </div>
+      <span class="status" lang="es">Solo datos sintéticos · sin resultados de piloto todavía</span>
+      <span class="status" lang="en">Synthetic data only · no pilot results yet</span>
+    </div>
+  </section>
+
+  <section id="base" class="band-soft">
+    <div class="wrap about">
+      <div class="body">
+        <h2><span lang="es">Vengo de la línea de producción</span><span lang="en">I come from the production line</span></h2>
+        <div style="margin-top:1.2rem">
+          <p lang="es">Me formé cuatro años en Alemania (formación dual, IHK Regensburg) en manufactura metalmecánica bajo ISO 9001 y el marco VDA, con especialidad en soldadura. Después trabajé en calidad y logística en una planta certificada ISO 9001 en Baviera.</p>
+          <p lang="en">I trained for four years in Germany (dual apprenticeship, IHK Regensburg) in metal manufacturing under ISO 9001 and the VDA framework, specializing in welding. I then worked in quality and logistics at an ISO 9001-certified plant in Bavaria.</p>
+          <p lang="es">Hoy combino ese criterio de piso con ciencia de datos. Antes de modelar pregunto qué representa cada registro y qué decisión depende de él.</p>
+          <p lang="en">Today I combine that shop-floor judgment with data science. Before modeling, I ask what each record represents and which decision depends on it.</p>
+        </div>
+      </div>
+      <div class="tags">
+        <h3><span lang="es">Dominio</span><span lang="en">Domain</span></h3>
+        <ul>
+          <li lang="es">Control estadístico (p′ de Laney, Cpk)</li><li lang="en">Statistical process control (Laney p′, Cpk)</li>
+          <li lang="es">Costo de la no calidad</li><li lang="en">Cost of poor quality</li>
+          <li lang="es">Causa raíz 8D</li><li lang="en">8D root cause</li>
+          <li>ISO 9001:2015</li><li>IATF 16949</li>
+          <li lang="es">Mantenimiento predictivo</li><li lang="en">Predictive maintenance</li>
+          <li lang="es">Pronóstico e inventario</li><li lang="en">Forecasting and inventory</li>
+        </ul>
+        <h3>Stack</h3>
+        <ul>
+          <li>Python</li><li>pandas</li><li>scikit-learn</li><li>LightGBM</li><li>statsmodels</li><li>lifelines</li>
+          <li>SQL</li><li>PostgreSQL</li><li>DuckDB</li><li>dbt</li><li>Power BI</li><li>Streamlit</li>
+          <li>FastAPI</li><li>Docker</li><li>MLflow</li><li>GitHub Actions</li><li>pytest</li><li>JavaScript</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contacto" class="contact">
+  <div class="wrap">
+    <div>
+      <h2><span lang="es">¿Tienes datos de scrap, paros o inspección?</span><span lang="en">Do you have scrap, downtime or inspection data?</span></h2>
+      <p lang="es">Escríbeme y en 30 minutos te digo si alcanzan para decidir algo.</p>
+      <p lang="en">Message me and in 30 minutes I'll tell you whether it is enough to decide something.</p>
+    </div>
+    <div class="links">
+      <a class="btn primary" href="https://www.linkedin.com/in/jesus-r-l-gonzalez" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="https://github.com/jesusrlgonzalez" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn" href="https://huggingface.co/JesusRLGonzalez" target="_blank" rel="noopener">Hugging Face</a>
+    </div>
+  </div>
+</footer>
+<div class="wrap foot">
+  <p lang="es">Uso herramientas de IA como apoyo; la validación y la responsabilidad de cada resultado son mías.</p>
+  <p lang="en">I use AI tools as support; validation of and responsibility for every result are mine.</p>
+</div>
+
+<div id="ios-tip" class="ios-tip" hidden role="dialog" aria-live="polite">
+  <p><span lang="es">Para instalar: toca <b>Compartir</b> y luego <b>Añadir a pantalla de inicio</b>.</span><span lang="en">To install: tap <b>Share</b>, then <b>Add to Home Screen</b>.</span></p>
+  <button type="button" id="ios-close"><span lang="es">Entendido</span><span lang="en">Got it</span></button>
+</div>
+<script>
+(function(){
+  var root=document.documentElement;
+  function set(l){
+    l = l==='en' ? 'en' : 'es';
+    root.setAttribute('data-lang',l);
+    root.setAttribute('lang',l);
+    document.getElementById('btn-es').setAttribute('aria-pressed', String(l==='es'));
+    document.getElementById('btn-en').setAttribute('aria-pressed', String(l==='en'));
+    try{ localStorage.setItem('lang',l); }catch(e){}
+  }
+  var start='es';
+  try{ start=localStorage.getItem('lang')||start; }catch(e){}
+  if(location.hash==='#en') start='en';
+  if(location.hash==='#es') start='es';
+  set(start);
+  window.addEventListener('hashchange',function(){ if(location.hash==='#en') set('en'); if(location.hash==='#es') set('es'); });
+  document.querySelectorAll('.lang button').forEach(function(b){
+    b.addEventListener('click',function(){ set(b.getAttribute('data-set')); });
+  });
+})();
+
+(function(){
+  var btn=document.getElementById('install'), tip=document.getElementById('ios-tip'), deferred=null;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred=e; if(!standalone) btn.hidden=false; });
+  window.addEventListener('appinstalled', function(){ btn.hidden=true; deferred=null; });
+  if (ios && !standalone) btn.hidden=false;
+  btn.addEventListener('click', function(){
+    if (deferred){ deferred.prompt(); deferred.userChoice.finally(function(){ deferred=null; btn.hidden=true; }); }
+    else if (ios){ tip.hidden=false; }
+  });
+  document.getElementById('ios-close').addEventListener('click', function(){ tip.hidden=true; });
+  if ('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')) navigator.serviceWorker.register('sw.js').catch(function(){});
+  function net(){ var b=document.querySelector('.brand'), o=document.getElementById('offline');
+    if(!navigator.onLine && !o){ o=document.createElement('span'); o.id='offline'; o.className='offline'; o.innerHTML='<span lang="es">Sin conexión</span><span lang="en">Offline</span>'; b.after(o); }
+    if(navigator.onLine && o) o.remove(); }
+  window.addEventListener('online',net); window.addEventListener('offline',net); net();
+})();
+</script>
+<script>
+(function(){
+  // Filtro por tipo de dato
+  var rows=[].slice.call(document.querySelectorAll('.prod'));
+  rows.forEach(function(r){ var c=r.querySelector('.chip'); r.dataset.kind = c.classList.contains('real')?'real':c.classList.contains('sim')?'sim':'syn'; });
+  var fb=[].slice.call(document.querySelectorAll('.filters button'));
+  fb.forEach(function(b){ b.addEventListener('click',function(){
+    var f=b.dataset.f; fb.forEach(function(x){ x.setAttribute('aria-pressed',String(x===b)); });
+    rows.forEach(function(r){ r.hidden = !(f==='all' || r.dataset.kind===f); });
+  }); });
+  // Calculadora: revisar si p > C_FP / (C_FP + C_FN)
+  var fp=document.getElementById('c-fp'), fn=document.getElementById('c-fn'), pr=document.getElementById('p-risk');
+  var MAX=30, money=function(v){ return '$'+Math.round(v).toLocaleString('es-MX')+' MXN'; };
+  var pct=function(v){ return (Math.round(v*10)/10).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+'\u00a0%'; };
+  function lang(){ return document.documentElement.getAttribute('data-lang')==='en'?'en':'es'; }
+  function run(){
+    var a=Math.max(parseFloat(fp.value)||0,0), b=Math.max(parseFloat(fn.value)||0,0), p=(parseFloat(pr.value)||0)/100;
+    document.getElementById('p-out').textContent=pct(p*100);
+    if(!(a>0&&b>0)){ document.getElementById('t-out').textContent='—'; return; }
+    var t=a/(a+b), pos=function(x){ return Math.min(x*100,MAX)/MAX*100+'%'; };
+    document.getElementById('t-out').textContent=pct(t*100);
+    document.getElementById('m-thr').style.left=pos(t);
+    document.getElementById('zone').style.left=pos(t);
+    document.getElementById('m-risk').style.left=pos(p);
+    var check=(1-p)*a*1000, pass=p*b*1000, doCheck=p>t;
+    var act=document.getElementById('d-act');
+    act.textContent = doCheck ? (lang()==='en'?'Check it':'Revisar') : (lang()==='en'?'Let it pass':'Dejar pasar');
+    act.classList.toggle('check',doCheck);
+    var kc=document.getElementById('k-check'), kp=document.getElementById('k-pass');
+    kc.textContent=money(check); kp.textContent=money(pass);
+    kc.classList.toggle('best',check<pass); kp.classList.toggle('best',pass<=check);
+  }
+  [fp,fn,pr].forEach(function(el){ el.addEventListener('input',run); });
+  document.getElementById('calc-form').addEventListener('submit',function(e){ e.preventDefault(); });
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click',function(){ setTimeout(run,0); }); });
+  window.addEventListener('hashchange',function(){ setTimeout(run,0); });
+  run();
+})();
+</script>
+
+</body>
+</html>

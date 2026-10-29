@@ -1,0 +1,39 @@
+name: web-space
+
+on:
+  push:
+    branches: [main]
+    paths: ["deploy/web-space/**", ".github/workflows/web-space.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_SPACE: JesusRLGonzalez/jesus-rl-gonzalez
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish personal website to Hugging Face
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::notice::HF_TOKEN not set; skipping publish."
+            exit 0
+          fi
+          pip install -q "huggingface_hub>=0.34,<1"
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          space = os.environ["HF_SPACE"]
+          api.create_repo(space, repo_type="space", space_sdk="static", exist_ok=True)
+          api.upload_folder(folder_path="deploy/web-space", repo_id=space, repo_type="space",
+                            delete_patterns="*", commit_message="Update website")
+          print("https://huggingface.co/spaces/" + space)
+          PY

@@ -20,9 +20,9 @@ CSS = """
 
 PIE = (
     '<footer class="pie">© 2026 Jesús R. L. González · Código bajo '
-    '<a href="https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics/blob/main/LICENSE" target="_blank" rel="noopener">licencia MIT</a>'
+    '<a href="https://github.com/jesusrlgonzalez/scrap-copq-analytics/blob/main/LICENSE" target="_blank" rel="noopener">licencia MIT</a>'
     ' · Planta de ejemplo ficticia (datos sintéticos) · '
-    '<a href="https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics" target="_blank" rel="noopener">Código fuente</a></footer>'
+    '<a href="https://github.com/jesusrlgonzalez/scrap-copq-analytics" target="_blank" rel="noopener">Código fuente</a></footer>'
 )
 
 

@@ -8,8 +8,8 @@ authors:
 license: MIT
 version: "1.2.0"
 date-released: "2026-10-16"
-repository-code: "https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics"
-url: "https://jesusgonzalezmexdata-ux.github.io/scrap-copq-analytics/"
+repository-code: "https://github.com/jesusrlgonzalez/scrap-copq-analytics"
+url: "https://jesusrlgonzalez.github.io/scrap-copq-analytics/"
 keywords:
   - manufacturing analytics
   - statistical process control

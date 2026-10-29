@@ -7,7 +7,7 @@
 <meta name="description" content="Shift-level production records, cleaned and validated, turned into a cost Pareto, Laney p′ charts and a binomial model that values each improvement lever in pesos.">
 <meta property="og:title" content="Where does the money for poor quality go in an auto-parts plant?">
 <meta property="og:description" content="MXN 1.23 M yearly saving from three levers, 14.5 % of COPQ">
-<meta property="og:image" content="https://jesusgonzalezmexdata-ux.github.io/scrap-copq-analytics/figures/pareto_piezas_vs_costo.png">
+<meta property="og:image" content="https://jesusrlgonzalez.github.io/scrap-copq-analytics/figures/pareto_piezas_vs_costo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
@@ -64,22 +64,22 @@ footer a{font-weight:600}
 </head>
 <body>
 <div class="wrap">
-<header class="top"><a href="https://github.com/jesusgonzalezmexdata-ux">Jesús R. L. González</a><a href="https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics">Source code on GitHub</a></header>
+<header class="top"><a href="https://github.com/jesusrlgonzalez">Jesús R. L. González</a><a href="https://github.com/jesusrlgonzalez/scrap-copq-analytics">Source code on GitHub</a></header>
 <main>
 <div class="hero">
 <div>
 <h1>Where does the money for poor quality go in an auto-parts plant?</h1>
 <p class="lead">Shift-level production records, cleaned and validated, turned into a cost Pareto, Laney p′ charts and a binomial model that values each improvement lever in pesos.</p>
-<div class="actions"><a class="btn primary" href="https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics">Open the live demo</a><a class="btn secondary" href="https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics">Read the code</a></div>
+<div class="actions"><a class="btn primary" href="https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics">Open the live demo</a><a class="btn secondary" href="https://github.com/jesusrlgonzalez/scrap-copq-analytics">Read the code</a></div>
 </div>
 <div class="tagbox"><p class="tag"><span class="value">MXN 1.23 M</span><span class="label">yearly saving from three levers, 14.5 % of COPQ</span><span class="note">Synthetic plant data, median of 2,000 simulations</span></p></div>
 </div>
 <section aria-labelledby="result"><h2 id="result">What the result means</h2><dl class="facts"><div><dt>Largest lever</dt><dd>Preventive maintenance on the welding line every 170–180 h: MXN 1.03 M</dd></div><div><dt>Misleading volume</dt><dd>Lack of fusion is 5 % of scrapped parts but 16 % of the cost</dd></div><div><dt>Model vs baselines</dt><dd>Mean absolute error 0.65 pp vs 1.04 and 1.18 for two baselines</dd></div><div><dt>Delivery</dt><dd>SQL on PostgreSQL, Streamlit dashboard and Docker</dd></div></dl></section>
 <section aria-labelledby="chart"><h2 id="chart" class="visually-plain">The main chart</h2><figure><img src="figures/pareto_piezas_vs_costo.png" alt="Pareto by parts against Pareto by cost" loading="lazy"><figcaption>The defect that tops the parts Pareto is not the one that tops the cost Pareto.</figcaption></figure></section>
-<section class="two"><div><h2>How the decision was made</h2><ol><li>Cleaning with every correction logged.</li><li>Cost of poor quality and a double Pareto.</li><li>Laney p′ charts to separate real signals from overdispersion.</li><li>Binomial GLM validated out of sample and a savings simulation with uncertainty.</li></ol></div><div><h2>What it does not claim</h2><ul><li>Synthetic data with seeded effects, built to demonstrate the method.</li><li>Observational model: a before/after pilot is the definitive test.</li><li>Lever costs are assumptions.</li></ul><p><a href="https://github.com/jesusgonzalezmexdata-ux/scrap-copq-analytics/blob/main/notebooks/analisis_scrap_copq.ipynb">Analysis notebook</a> and full evidence in the repository.</p></div></section>
+<section class="two"><div><h2>How the decision was made</h2><ol><li>Cleaning with every correction logged.</li><li>Cost of poor quality and a double Pareto.</li><li>Laney p′ charts to separate real signals from overdispersion.</li><li>Binomial GLM validated out of sample and a savings simulation with uncertainty.</li></ol></div><div><h2>What it does not claim</h2><ul><li>Synthetic data with seeded effects, built to demonstrate the method.</li><li>Observational model: a before/after pilot is the definitive test.</li><li>Lever costs are assumptions.</li></ul><p><a href="https://github.com/jesusrlgonzalez/scrap-copq-analytics/blob/main/notebooks/analisis_scrap_copq.ipynb">Analysis notebook</a> and full evidence in the repository.</p></div></section>
 <section><div class="demo"><div><h2>Try it</h2><p>Filter by line and shift, and move the maintenance interval to see the saving.</p></div><a class="btn primary" href="https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics">Open the live demo</a></div></section>
 </main>
-<footer><p>Other projects</p><ul><li><a href="https://jesusgonzalezmexdata-ux.github.io/aps-failure-intelligence/">APS failure triage</a></li><li><a href="https://jesusgonzalezmexdata-ux.github.io/steel-plates-quality-mlops/">Steel-plate defect classification</a></li><li><a href="https://jesusgonzalezmexdata-ux.github.io/predictive-maintenance-survival-cmapss/">Condition-based maintenance</a></li><li><a href="https://jesusgonzalezmexdata-ux.github.io/predictive-quality-mlops/">Predictive quality on SECOM</a></li><li><a href="https://jesusgonzalezmexdata-ux.github.io/predix/">Demand and inventory for grocery stores</a></li></ul><p>Jesús R. L. González, data scientist in manufacturing operations and quality.</p></footer>
+<footer><p>Other projects</p><ul><li><a href="https://jesusrlgonzalez.github.io/aps-failure-intelligence/">APS failure triage</a></li><li><a href="https://jesusrlgonzalez.github.io/steel-plates-quality-mlops/">Steel-plate defect classification</a></li><li><a href="https://jesusrlgonzalez.github.io/predictive-maintenance-survival-cmapss/">Condition-based maintenance</a></li><li><a href="https://jesusrlgonzalez.github.io/predictive-quality-mlops/">Predictive quality on SECOM</a></li><li><a href="https://jesusrlgonzalez.github.io/predix/">Demand and inventory for grocery stores</a></li></ul><p>Jesús R. L. González, data scientist in manufacturing operations and quality.</p></footer>
 </div>
 </body>
 </html>

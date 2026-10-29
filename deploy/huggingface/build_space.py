@@ -84,8 +84,8 @@ short_description: {c['short_description'][:60]}
 
 The app runs entirely in your browser with [stlite](https://github.com/whitphx/stlite) (Streamlit on Pyodide); the first load downloads the Python libraries.
 
-- Source code and evidence: [{c['repo']}](https://github.com/jesusgonzalezmexdata-ux/{c['repo']})
-- Project page: [jesusgonzalezmexdata-ux.github.io/{c['repo']}](https://jesusgonzalezmexdata-ux.github.io/{c['repo']}/)
+- Source code and evidence: [{c['repo']}](https://github.com/jesusrlgonzalez/{c['repo']})
+- Project page: [jesusrlgonzalez.github.io/{c['repo']}](https://jesusrlgonzalez.github.io/{c['repo']}/)
 
 This Space is synchronised automatically from the GitHub repository; edit the code there.
 """

@@ -2,7 +2,7 @@
 
 *[English](README.md) · Español*
 
-**[Demo en vivo](https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics)** | **[Página del proyecto](https://jesusgonzalezmexdata-ux.github.io/scrap-copq-analytics/)**
+**[Demo en vivo](https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics)** | **[Página del proyecto](https://jesusrlgonzalez.github.io/scrap-copq-analytics/)**
 
 **Cómo encontrar las palancas que reducen el scrap en una planta de autopartes, cuantificarlas en pesos y validarlas con estadística.**
 

@@ -12,7 +12,7 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · statistical process control 
 
 ## Executive summary
 
-**Poor quality cost MXN 8.46 million in 2025 (1.85 % of sales). Three levers cut MXN 1.23 million a year (14.5 % of COPQ), and more than 80 % of that saving comes from one of them: adjusting preventive maintenance on the robotic welding line.**
+**In the synthetic plant, poor quality cost MXN 8.46 million in 2025 (1.85 % of sales). According to the model, three levers would cut MXN 1.23 million a year (14.5 % of COPQ; estimated, not observed), and more than 80 % of that saving would come from one of them: adjusting preventive maintenance on the robotic welding line.**
 
 | Finding | Evidence |
 |---|---|

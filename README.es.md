@@ -12,7 +12,7 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · control estadístico de proc
 
 ## Resumen ejecutivo
 
-**La no calidad costó 8.46 millones de MXN en 2025 (1.85 % de las ventas). Tres palancas recortan 1.23 millones al año (14.5 % del COPQ), y más del 80 % de ese ahorro viene de una sola: ajustar el mantenimiento preventivo de la línea de soldadura robotizada.**
+**En la planta sintética, la no calidad costó 8.46 millones de MXN en 2025 (1.85 % de las ventas). Según el modelo, tres palancas recortarían 1.23 millones al año (14.5 % del COPQ; ahorro estimado, no observado), y más del 80 % de ese ahorro vendría de una sola: ajustar el mantenimiento preventivo de la línea de soldadura robotizada.**
 
 | Hallazgo | Evidencia |
 |---|---|

@@ -6,7 +6,7 @@
 <title>Scrap and cost of poor quality | Jesús R. L. González</title>
 <meta name="description" content="Shift-level production records, cleaned and validated, turned into a cost Pareto, Laney p′ charts and a binomial model that values each improvement lever in pesos.">
 <meta property="og:title" content="Where does the money for poor quality go in an auto-parts plant?">
-<meta property="og:description" content="MXN 1.23 M yearly saving from three levers, 14.5 % of COPQ">
+<meta property="og:description" content="Estimated MXN 1.23 M yearly saving from three levers, 14.5 % of COPQ, in a synthetic plant (not observed)">
 <meta property="og:image" content="https://jesusrlgonzalez.github.io/scrap-copq-analytics/figures/pareto_piezas_vs_costo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,7 +72,7 @@ footer a{font-weight:600}
 <p class="lead">Shift-level production records, cleaned and validated, turned into a cost Pareto, Laney p′ charts and a binomial model that values each improvement lever in pesos.</p>
 <div class="actions"><a class="btn primary" href="https://huggingface.co/spaces/JesusRLGonzalez/scrap-copq-analytics">Open the live demo</a><a class="btn secondary" href="https://github.com/jesusrlgonzalez/scrap-copq-analytics">Read the code</a></div>
 </div>
-<div class="tagbox"><p class="tag"><span class="value">MXN 1.23 M</span><span class="label">yearly saving from three levers, 14.5 % of COPQ</span><span class="note">Synthetic plant data, median of 2,000 simulations</span></p></div>
+<div class="tagbox"><p class="tag"><span class="value">MXN 1.23 M</span><span class="label">estimated yearly saving from three levers, 14.5 % of COPQ (not observed)</span><span class="note">Synthetic plant data, median of 2,000 simulations</span></p></div>
 </div>
 <section aria-labelledby="result"><h2 id="result">What the result means</h2><dl class="facts"><div><dt>Largest lever</dt><dd>Preventive maintenance on the welding line every 170–180 h: MXN 1.03 M</dd></div><div><dt>Misleading volume</dt><dd>Lack of fusion is 5 % of scrapped parts but 16 % of the cost</dd></div><div><dt>Model vs baselines</dt><dd>Mean absolute error 0.65 pp vs 1.04 and 1.18 for two baselines</dd></div><div><dt>Delivery</dt><dd>SQL on PostgreSQL, Streamlit dashboard and Docker</dd></div></dl></section>
 <section aria-labelledby="chart"><h2 id="chart" class="visually-plain">The main chart</h2><figure><img src="figures/pareto_piezas_vs_costo.png" alt="Pareto by parts against Pareto by cost" loading="lazy"><figcaption>The defect that tops the parts Pareto is not the one that tops the cost Pareto.</figcaption></figure></section>

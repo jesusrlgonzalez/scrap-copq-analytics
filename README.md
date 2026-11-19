@@ -27,6 +27,8 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · statistical process control 
 | Move supplier C's batches to supplier A | MXN 0.12 M | 0.12 – 0.13 M |
 | Competency-based onboarding for new operators | MXN 0.08 M | 0.06 – 0.09 M |
 
+**Where these figures come from.** They are the reference scenario in [`reports/referencia_palancas.json`](reports/referencia_palancas.json), regenerated with `python -m scrap_copq.conciliacion --escribir`. A test fails if this table, that file and the code diverge. The P10–P90 interval simulates only the GLM coefficients: it does not include uncertainty in the model specification, the cost assumptions or causality, and the effects were planted by the data generator. The supplier lever pays off only because all crack claims (MXN 201,520) are attributed to supplier C's batches; without that attribution its net saving is about −MXN 78 k.
+
 ![Pareto by parts versus Pareto by cost](reports/figures/pareto_piezas_vs_costo.png)
 
 ## Method
@@ -81,7 +83,9 @@ The **"Tus datos"** mode of the dashboard runs the same diagnosis on a real plan
 3. Read the result: cost of poor quality, Laney p′ charts per line, and only the levers whose effect is statistically different from zero, each with its P10–P90 annual saving and an out-of-sample check against the line average.
 4. Download a one-page report with the proposed action in 8D format and its IATF 16949 / ISO 9001 references.
 
-**Privacy:** on the live demo the file is processed inside the visitor's browser (Python on WebAssembly) and is not sent to any server. On the synthetic plant, the generic model finds the same main lever without being told: preventive maintenance on L2 every 160 h instead of ≈ 320 h, MXN 1.07 M net a year. Pilot protocol, success and stop criteria: [`docs/MVP_PILOTO.md`](docs/MVP_PILOTO.md) (Spanish).
+**Privacy:** on the live demo the file is processed inside the visitor's browser (Python on WebAssembly) and is not sent to any server. On the synthetic plant, the generic model finds the same main lever without being told: preventive maintenance on L2 every 160 h instead of ≈ 320 h, MXN 1.07 M net a year.
+
+**Same data, same assumptions, two analyses.** The cost assumptions live in one place ([`scrap_copq/supuestos.py`](scrap_copq/supuestos.py)) and both analyses use the same cost functions. If the number of new hires is not entered, the onboarding cost is flagged as *not captured* instead of being set to zero. With the synthetic plant, 10 hires and the crack claims attributed to supplier C, the generic diagnosis gives MXN 1.34 M a year against 1.23 M for the guided analysis (+9.4 %). The difference comes from its automatic specification: a 160 h instead of 170 h threshold (near-tied deviance), one new-operator effect for all lines, and no humidity or changeover variables (omitted-variable bias). Each step is recomputed and tested in [`docs/conciliacion_palancas.md`](docs/conciliacion_palancas.md) (Spanish). Pilot protocol, success and stop criteria: [`docs/MVP_PILOTO.md`](docs/MVP_PILOTO.md) (Spanish).
 
 ## How to run it
 
@@ -112,7 +116,9 @@ The tests compare each query's result with Python's. In the repository they run 
 
 ```
 ├── scrap_copq/
-│   ├── config.py      # plant catalogue and cost assumptions
+│   ├── config.py      # plant catalogue
+│   ├── supuestos.py   # cost assumptions shared by both analyses
+│   ├── conciliacion.py # reference scenario and bridge between analyses
 │   ├── generate.py    # synthetic data with seeded patterns
 │   ├── clean.py       # cleaning and validation
 │   ├── metrics.py     # COPQ, Pareto, p and p′ charts, Western Electric rules
@@ -151,7 +157,9 @@ Also: `scrap_por_defecto.csv` (scrap by defect), `reclamos_cliente.csv` (custome
 
 - **Synthetic data:** the effects were seeded to demonstrate the method. In a real plant each cause is confirmed on the floor, for example with an Ishikawa diagram or 5 whys per finding.
 - **Observational model:** the saving assumes that the estimated effects are causal. A pilot with a p′ chart before and after is the definitive test.
-- **Costs:** the lever costs (`scrap_copq/config.py`) are assumptions to be replaced with plant data: MXN 4,500 per extra preventive stop, MXN 15,000 per trained operator and a 2 % discount from supplier C.
+- **Costs:** the lever costs ([`scrap_copq/supuestos.py`](scrap_copq/supuestos.py)) are assumptions to be replaced with plant data: MXN 4,500 per extra preventive stop, MXN 15,000 per trained operator and a 2 % discount from supplier C. Attributing the crack claims to supplier C is also an assumption.
+- **Uncertainty:** P10–P90 covers only the model coefficients, not the specification, the costs or causality. Two reasonable specifications give 1.23 M and 1.34 M on the same data.
+- **No observed saving:** no figure in this project was measured at a company, and no causal effect has been validated.
 
 ## Skills demonstrated
 

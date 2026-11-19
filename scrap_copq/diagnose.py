@@ -12,18 +12,34 @@ import pandas as pd
 import statsmodels.api as sm
 
 from . import metrics as m
+from .supuestos import (ALCANCE_INCERTIDUMBRE, REFERENCIA, Supuestos, compras_material, costo_cambio_proveedor,
+                        costo_induccion, costo_preventivos)
 
 MIN_SUPPLIER_RUNS = 30
+ESPECIFICACION = (
+    "Especificación automática: línea, turno, proveedor (referencia = el de menor tasa de scrap), operadores "
+    "nuevos con un efecto común a todas las líneas y desgaste por horas desde el preventivo en cada línea con "
+    "umbral propio. No usa humedad ni cambio de modelo. El análisis guiado de la planta de ejemplo usa una "
+    "especificación propia (efectos por línea, humedad y cambio de modelo), por eso sus cifras pueden diferir.")
 
 
 @dataclass
 class Settings:
-    costo_preventivo_mxn: float = 4_500      # costo de un preventivo adicional
-    costo_induccion_mxn: float = 0.0         # costo anual del programa de inducción
-    costo_cambio_proveedor_mxn: float = 0.0  # costo anual de mover los lotes de un proveedor
-    brecha_induccion: float = 0.5            # fracción del efecto de operadores nuevos que cierra la inducción
-    n_sims: int = 1000
-    seed: int = 7
+    """Supuestos del diagnóstico. Los costos salen de `supuestos.py`; si falta un dato para calcular
+    un costo, la palanca se marca con el costo no capturado (su ahorro neto es una cota superior)."""
+    supuestos: Supuestos = REFERENCIA
+    altas_operadores_anio: float | None = None          # operadores nuevos que ingresan al año
+    reclamos_atribuidos_proveedor_mxn: float = 0.0      # reclamos que el analista atribuye al proveedor que se mueve
+    costo_extra_proveedor_mxn: float = 0.0              # otros costos anuales del cambio (homologación, fletes)
+    brecha_induccion: float | None = None               # si None, la de `supuestos`
+    n_sims: int | None = None                           # si None, las de `supuestos`
+    seed: int | None = None
+
+    def __post_init__(self):
+        s = self.supuestos
+        self.brecha_induccion = s.brecha_induccion if self.brecha_induccion is None else self.brecha_induccion
+        self.n_sims = s.n_sims if self.n_sims is None else self.n_sims
+        self.seed = s.seed if self.seed is None else self.seed
 
 
 # ------------------------------------------------------------------ modelo
@@ -106,10 +122,10 @@ def _pm_cost(prod, line, thr, settings, annual):
     current = float(np.median(peaks)) if len(peaks) else float(h.max())
     hours_year = accrued * annual
     extra = max(0.0, hours_year / thr - hours_year / current)
-    return extra * settings.costo_preventivo_mxn, current
+    return costo_preventivos(extra, settings.supuestos), current
 
 
-def levers(res, prod, spec, thresholds, settings, annual):
+def levers(res, prod, spec, thresholds, settings, annual, catalog=None):
     params, ci = res.params, res.conf_int()
     sig = lambda c: c in params and ci.loc[c, 0] > 0  # noqa: E731
     base_X = _exog(res, prod, spec, thresholds)
@@ -136,8 +152,14 @@ def levers(res, prod, spec, thresholds, settings, annual):
         if sig(c):
             X = base_X.copy()
             X[c] = 0.0
+            if catalog is not None and "costo_material_mxn" in catalog:
+                compras = compras_material(prod, catalog, prod["proveedor"] == sup) * annual
+                cost = costo_cambio_proveedor(compras, settings.supuestos) + settings.costo_extra_proveedor_mxn
+            else:
+                cost = None
             candidates.append(("proveedor", sup, f"Mover los lotes del proveedor {sup} al {spec['suppliers'][0]}", X,
-                               settings.costo_cambio_proveedor_mxn, {"razon_momios": float(np.exp(params[c]))}))
+                               cost, {"razon_momios": float(np.exp(params[c])),
+                                      "reclamos_atribuidos_mxn": float(settings.reclamos_atribuidos_proveedor_mxn)}))
         elif c in params:
             not_sig.append(f"Proveedor {sup} frente a {spec['suppliers'][0]}")
     if spec["operators"]:
@@ -146,7 +168,8 @@ def levers(res, prod, spec, thresholds, settings, annual):
             X = base_X.copy()
             X[c] = X[c] * (1 - settings.brecha_induccion)
             candidates.append(("induccion", "todas", f"Inducción por competencias (cierra {settings.brecha_induccion:.0%} "
-                               "del efecto de operadores nuevos)", X, settings.costo_induccion_mxn,
+                               "del efecto de operadores nuevos)", X,
+                               costo_induccion(settings.altas_operadores_anio, settings.supuestos),
                                {"razon_momios_por_operador": float(np.exp(params[c]))}))
         else:
             not_sig.append("Operadores nuevos")
@@ -155,13 +178,15 @@ def levers(res, prod, spec, thresholds, settings, annual):
     for kind, target, label, X, cost, extra in candidates:
         alt = _expected(X, betas, n)
         avoided = (base - alt).sum(axis=1) * annual
-        gross = ((base - alt) * unit).sum(axis=1) * annual
+        gross = ((base - alt) * unit).sum(axis=1) * annual + extra.get("reclamos_atribuidos_mxn", 0.0)
         p10, p50, p90 = np.percentile(gross, [10, 50, 90])
+        captured = cost is not None
+        cost = float(cost) if captured else 0.0
         rows.append({"tipo": kind, "objetivo": target, "palanca": label,
                      "piezas_evitadas_anio": float(np.median(avoided)),
                      "ahorro_bruto_p10": p10, "ahorro_bruto_p50": p50, "ahorro_bruto_p90": p90,
-                     "costo_anual": float(cost), "ahorro_neto_p10": p10 - cost, "ahorro_neto_p50": p50 - cost,
-                     "ahorro_neto_p90": p90 - cost, "costo_capturado": cost > 0, **extra})
+                     "costo_anual": cost, "ahorro_neto_p10": p10 - cost, "ahorro_neto_p50": p50 - cost,
+                     "ahorro_neto_p90": p90 - cost, "costo_capturado": captured, **extra})
     table = pd.DataFrame(rows)
     if not table.empty:
         table = table.sort_values("ahorro_neto_p50", ascending=False).reset_index(drop=True)
@@ -238,7 +263,7 @@ def diagnose(data, settings: Settings | None = None):
     spec = _spec(prod, cols)
     thresholds, curves = find_thresholds(prod, spec)
     res = fit(prod, spec, thresholds)
-    lever_table, not_sig = levers(res, prod, spec, thresholds, settings, annual)
+    lever_table, not_sig = levers(res, prod, spec, thresholds, settings, annual, data.get("catalog"))
     ci = res.conf_int()
     effects = pd.DataFrame({"razon_momios": np.exp(res.params), "ic95_inf": np.exp(ci[0]),
                             "ic95_sup": np.exp(ci[1]), "p_valor": res.pvalues}).drop(index="const")
@@ -246,4 +271,6 @@ def diagnose(data, settings: Settings | None = None):
     return {"kpis": k, "pareto": paretos, "por_linea": by_line.sort_values("costo_scrap_mxn", ascending=False),
             "control": control_summary(prod, thresholds), "umbrales": thresholds, "curvas_umbral": curves,
             "efectos": effects, "dispersion": float(res.scale), "palancas": lever_table, "no_significativas": not_sig,
-            "validacion": validate_holdout(prod, cols), "settings": settings, "anualizacion": annual}
+            "validacion": validate_holdout(prod, cols), "settings": settings, "anualizacion": annual,
+            "supuestos": settings.supuestos.como_tabla(), "alcance_incertidumbre": ALCANCE_INCERTIDUMBRE,
+            "especificacion": ESPECIFICACION}

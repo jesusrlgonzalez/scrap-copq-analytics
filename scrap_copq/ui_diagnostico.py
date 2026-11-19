@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from . import diagnose as dg, intake, report as rp
+from .supuestos import REFERENCIA, Supuestos
 
 BLUE, GREY, INK = "#0E0F11", "#C9CDD1", "#0E0F11"  # negro señal resalta el 80 %, línea el resto
 
@@ -56,13 +57,27 @@ def render():
     if st.button("O prueba con un archivo de ejemplo que trae errores de captura"):
         st.session_state["ejemplo"] = True
     plant = st.text_input("Nombre de la planta o línea (aparece en el reporte)", "Mi planta")
-    with st.expander("Costos de implementar cada palanca"):
+    with st.expander("Supuestos de costo de cada palanca", expanded=True):
+        ref = REFERENCIA
         a, b, c = st.columns(3)
-        pm = a.number_input("Un preventivo adicional (MXN)", 0, 1_000_000, 4_500, 500)
-        ind = b.number_input("Programa de inducción al año (MXN)", 0, 10_000_000, 0, 5_000)
-        sup = c.number_input("Cambiar de proveedor al año (MXN)", 0, 10_000_000, 0, 5_000)
-        gap = st.slider("Parte del efecto de operadores nuevos que cierra la inducción", 0, 100, 50, 10, format="%d %%")
-        st.caption("Sin costo capturado, el ahorro de esa palanca se reporta como bruto.")
+        pm = a.number_input("Un preventivo adicional (MXN)", 0, 1_000_000, int(ref.costo_preventivo_mxn), 500)
+        por_op = b.number_input("Inducción por operador nuevo (MXN)", 0, 1_000_000,
+                                int(ref.costo_induccion_por_operador_mxn), 1_000)
+        altas = c.number_input("Operadores nuevos que ingresan al año", 0, 10_000, None, 1, placeholder="sin capturar",
+                               help="Sin este dato, el costo de la inducción no se captura y su ahorro se reporta bruto.")
+        d, e, f = st.columns(3)
+        desc = d.number_input("Descuento que se pierde al cambiar de proveedor (%)", 0.0, 50.0,
+                              100 * ref.descuento_proveedor, 0.5)
+        extra = e.number_input("Otros costos anuales del cambio de proveedor (MXN)", 0, 10_000_000, 0, 5_000)
+        recl = f.number_input("Reclamos atribuibles al proveedor que se mueve (MXN/año)", 0, 100_000_000, 0, 10_000,
+                              help="Atribuirlos es un supuesto del analista: súmalos solo si trazaste los reclamos a sus lotes.")
+        gap = st.slider("Parte del efecto de operadores nuevos que cierra la inducción", 0, 100,
+                        int(100 * ref.brecha_induccion), 10, format="%d %%")
+        st.caption("Valores iniciales: los mismos supuestos del análisis guiado de la planta de ejemplo "
+                   "(`scrap_copq/supuestos.py`). Con la planta de ejemplo, 10 altas y 201,520 MXN de reclamos por grieta "
+                   "atribuidos al proveedor C, este diagnóstico da ≈ 1.34 M MXN/año frente a 1.23 M del análisis guiado: la "
+                   "diferencia se debe a la especificación automática del modelo y está desglosada en "
+                   "`docs/conciliacion_palancas.md`.")
     if up is not None:
         content = up.getvalue()
     elif st.session_state.get("ejemplo"):
@@ -72,8 +87,10 @@ def render():
         st.info("Para probar, descarga la plantilla y súbela tal cual, o usa el archivo de ejemplo con errores.")
         return
 
-    settings = dg.Settings(costo_preventivo_mxn=pm, costo_induccion_mxn=ind, costo_cambio_proveedor_mxn=sup,
-                           brecha_induccion=gap / 100)
+    settings = dg.Settings(supuestos=Supuestos(costo_preventivo_mxn=pm, costo_induccion_por_operador_mxn=por_op,
+                                               descuento_proveedor=desc / 100, brecha_induccion=gap / 100),
+                           altas_operadores_anio=altas, reclamos_atribuidos_proveedor_mxn=recl,
+                           costo_extra_proveedor_mxn=extra)
     try:
         data, issues, r = _run(content, settings)
     except intake.DataError as exc:
@@ -103,6 +120,10 @@ def render():
                                       "ahorro_neto_p10": "Neto P10", "ahorro_neto_p50": "Neto P50", "ahorro_neto_p90": "Neto P90"})
                      .style.format({"Piezas evitadas": "{:,.0f}", "Costo": "${:,.0f}", "Neto P10": "${:,.0f}",
                                     "Neto P50": "${:,.0f}", "Neto P90": "${:,.0f}"}), hide_index=True)
+        if not lev["costo_capturado"].all():
+            st.warning("Hay palancas sin costo capturado: su ahorro neto es una cota superior, no una estimación neta.")
+        st.caption(r["alcance_incertidumbre"] + " " + r["especificacion"] +
+                   " Es una estimación de modelo: no es un ahorro observado ni prueba causalidad.")
     left, right = st.columns(2)
     if "costo" in r["pareto"]:
         left.plotly_chart(_pareto_fig(r["pareto"]["costo"], r["pareto"]["piezas"]), theme=None)

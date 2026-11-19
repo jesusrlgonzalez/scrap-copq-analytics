@@ -6,6 +6,7 @@ import streamlit as st
 from scrap_copq import metrics as m, model as md
 from scrap_copq.clean import load
 from scrap_copq.config import PROCESSED, SHIFTS
+from scrap_copq.supuestos import ALCANCE_INCERTIDUMBRE, REFERENCIA
 
 st.set_page_config(page_title="Scrap y COPQ · planta de autopartes", page_icon="🏭", layout="wide")
 from scrap_copq.estilo import aplicar as aplicar_estilo  # noqa: E402
@@ -60,7 +61,7 @@ def savings(interval, gap_closed):
     t, (threshold, res) = get_data(), get_model()
     return md.simulate_savings(res, t["prod"], t["catalogo_productos"], t["altas_operadores"],
                                t["mantenimientos"], t["reclamos_cliente"], threshold,
-                               interval=interval, gap_closed=gap_closed, n_sims=500)
+                               interval=interval, gap_closed=gap_closed, supuestos=REFERENCIA)
 
 
 @st.cache_data
@@ -242,5 +243,7 @@ with tab_sim:
     st.plotly_chart(style(fig, "Ahorro neto del mantenimiento de L2 según el intervalo (MXN/año)", height=360,
                           showlegend=False, xaxis=dict(title="horas de operación entre preventivos"),
                           yaxis=dict(range=[min(0, curve["ahorro_neto"].min()) * 1.1, top])), theme=None)
-    st.caption("Supuestos en `scrap_copq/config.py`: preventivo adicional 4,500 MXN; inducción 15,000 MXN por "
-               "operador nuevo; el proveedor C es 2 % más barato. Incertidumbre: 500 simulaciones de los coeficientes.")
+    st.caption(f"Supuestos en `scrap_copq/supuestos.py`: preventivo adicional {REFERENCIA.costo_preventivo_mxn:,.0f} MXN; "
+               f"inducción {REFERENCIA.costo_induccion_por_operador_mxn:,.0f} MXN por operador nuevo; el proveedor C es "
+               f"{REFERENCIA.descuento_proveedor:.0%} más barato; los reclamos por grieta se atribuyen al proveedor C. "
+               f"{ALCANCE_INCERTIDUMBRE} Planta sintética: estimación de modelo, no ahorro observado.")

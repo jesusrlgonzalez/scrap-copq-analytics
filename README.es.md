@@ -27,6 +27,8 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · control estadístico de proc
 | Reasignar los lotes del proveedor C al A | 0.12 M MXN | 0.12 – 0.13 M |
 | Inducción por competencias para operadores nuevos | 0.08 M MXN | 0.06 – 0.09 M |
 
+**De dónde salen estas cifras.** Son el escenario de referencia de [`reports/referencia_palancas.json`](reports/referencia_palancas.json), que se regenera con `python -m scrap_copq.conciliacion --escribir`. Una prueba falla si esta tabla, ese archivo y el código divergen. El intervalo P10–P90 simula solo los coeficientes del GLM: no incluye la incertidumbre de la especificación del modelo, de los supuestos de costo ni de la causalidad, y los efectos los sembró el generador de datos. La palanca de proveedor solo paga su costo porque todos los reclamos por grieta (201,520 MXN) se atribuyen a lotes del proveedor C; sin esa atribución, su ahorro neto es de unos −78 mil MXN.
+
 ![Pareto por piezas frente a Pareto por costo](reports/figures/pareto_piezas_vs_costo.png)
 
 ## Método
@@ -83,6 +85,8 @@ El modo **«Tus datos»** del tablero aplica el mismo diagnóstico al Excel de u
 
 **Privacidad:** en la demo publicada el archivo se procesa dentro del navegador del visitante (Python en WebAssembly) y no se envía a ningún servidor. Sobre la planta sintética, el modelo genérico encuentra la misma palanca principal sin que se le indique: preventivo de L2 cada 160 h en lugar de ≈ 320 h, 1.07 M MXN netos al año. Protocolo de piloto y criterios de éxito y de abandono: [`docs/MVP_PILOTO.md`](docs/MVP_PILOTO.md).
 
+**Mismos datos, mismos supuestos, dos análisis.** Los supuestos de costo viven en un solo lugar ([`scrap_copq/supuestos.py`](scrap_copq/supuestos.py)) y ambos análisis usan las mismas funciones de costo. Si no se captura el número de altas, el costo de la inducción se marca como *no capturado* en vez de ponerse en cero. Con la planta sintética, 10 altas y los reclamos por grieta atribuidos al proveedor C, el diagnóstico genérico da 1.34 M MXN al año frente a 1.23 M del análisis guiado (+9.4 %). La diferencia viene de su especificación automática: umbral de 160 h en vez de 170 h (devianzas casi empatadas), un solo efecto de operadores nuevos para todas las líneas y sin humedad ni cambio de modelo (sesgo por variable omitida). Cada paso se recalcula y se prueba en [`docs/conciliacion_palancas.md`](docs/conciliacion_palancas.md).
+
 ## Cómo ejecutarlo
 
 ```bash
@@ -112,7 +116,9 @@ Las pruebas comparan el resultado de cada consulta con el de Python. En el repos
 
 ```
 ├── scrap_copq/
-│   ├── config.py      # catálogo de la planta y supuestos de costo
+│   ├── config.py      # catálogo de la planta
+│   ├── supuestos.py   # supuestos de costo compartidos por los dos análisis
+│   ├── conciliacion.py # escenario de referencia y puente entre análisis
 │   ├── generate.py    # datos sintéticos con patrones sembrados
 │   ├── clean.py       # limpieza y validación
 │   ├── metrics.py     # COPQ, Pareto, cartas p y p′, reglas de Western Electric
@@ -151,7 +157,9 @@ Además: `scrap_por_defecto.csv`, `reclamos_cliente.csv`, `mantenimientos.csv`, 
 
 - **Datos sintéticos:** los efectos se sembraron para demostrar el método. En una planta real, cada causa se confirma en piso, por ejemplo con un Ishikawa o 5 porqués por hallazgo.
 - **Modelo observacional:** el ahorro asume que los efectos estimados son causales. Un piloto con carta p′ antes y después es la prueba definitiva.
-- **Costos:** los de las palancas (`scrap_copq/config.py`) son supuestos y deben reemplazarse con datos de la planta. Son 4,500 MXN por preventivo adicional, 15,000 MXN por operador capacitado y un descuento de 2 % del proveedor C.
+- **Costos:** los de las palancas ([`scrap_copq/supuestos.py`](scrap_copq/supuestos.py)) son supuestos y deben reemplazarse con datos de la planta. Son 4,500 MXN por preventivo adicional, 15,000 MXN por operador capacitado y un descuento de 2 % del proveedor C. Atribuir los reclamos por grieta al proveedor C también es un supuesto.
+- **Incertidumbre:** el P10–P90 cubre solo los coeficientes del modelo, no la especificación, los costos ni la causalidad. Dos especificaciones razonables dan 1.23 M y 1.34 M con los mismos datos.
+- **Sin ahorro observado:** ninguna cifra de este proyecto se midió en una empresa ni hay un efecto causal validado.
 
 ---
 

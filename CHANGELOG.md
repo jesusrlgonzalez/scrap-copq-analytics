@@ -4,6 +4,18 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Fixed
+- The "Tus datos" diagnosis no longer sets the onboarding and supplier-change costs to zero by default. Both analyses now take their costs from one specification (`scrap_copq/supuestos.py`) and the same cost functions. A missing hire count is flagged as *not captured* (upper bound) instead of being silently zero. On the synthetic template, the default net total drops from MXN 1.52 M to 1.29 M.
+- The dashboard savings simulator uses the reference number of simulations, so its initial values match the README (MXN 1,228,540).
+
+### Added
+- Reference scenario `reports/referencia_palancas.json` and `python -m scrap_copq.conciliacion`, with a step-by-step bridge between the guided analysis (1.23 M) and the generic diagnosis under the same assumptions (1.34 M). See `docs/conciliacion_palancas.md`.
+- `model.Especificacion` to run documented variants of the GLM (pooled new-operator effect, without humidity or changeover).
+- Twelve tests that fail if code, reference scenario, README, notebook, dashboard or the bridge document diverge, or if a cost is silently dropped.
+
+### Documentation
+- The scope of the P10–P90 interval (parameter uncertainty only), the synthetic nature of the data and the absence of any observed saving or validated causal effect are stated in the README, the demo and the 8D report. The supplier lever pays off only if crack claims are attributed to supplier C; without that assumption it is negative.
+
 ### Security
 - Browser demo (Hugging Face Space): the Python requirements are pinned (`statsmodels==0.14.4`, `matplotlib==3.8.4`, `plotly==7.1.0`, `openpyxl==3.1.5`, `et-xmlfile==2.0.0`), so the code that runs next to an uploaded file no longer changes between visits.
 - The demo page sets a Content-Security-Policy whose `connect-src` only allows the page itself, jsDelivr and PyPI; it also applies to the Pyodide worker.

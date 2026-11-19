@@ -16,8 +16,10 @@ from pathlib import Path
 STLITE = "1.11.0"
 # Network allow-list for the page and its Pyodide worker: the uploaded file can only reach these origins.
 # Pin versions in space.json so that the code allowed here does not change between visits.
+# Hugging Face serves binary files of the Space (images, .npz, .parquet) through redirects to its CDN (*.hf.co).
 CSP = ("connect-src 'self' https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org "
-       "https://stlite.invalid blob: data:; img-src 'self' data: blob: https://stlite.invalid; "
+       "https://huggingface.co https://*.hf.co https://stlite.invalid blob: data:; "
+       "img-src 'self' data: blob: https://huggingface.co https://*.hf.co https://stlite.invalid; "
        "object-src 'none'; base-uri 'self'; form-action 'none'")
 ROOT = Path(__file__).resolve().parents[2]
 CONF = json.loads((Path(__file__).parent / "space.json").read_text(encoding="utf-8"))

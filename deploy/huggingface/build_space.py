@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 
 STLITE = "1.11.0"
+# Network allow-list for the page and its Pyodide worker: the uploaded file can only reach these origins.
+# Pin versions in space.json so that the code allowed here does not change between visits.
+CSP = ("connect-src 'self' https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org "
+       "https://stlite.invalid blob: data:; img-src 'self' data: blob: https://stlite.invalid; "
+       "object-src 'none'; base-uri 'self'; form-action 'none'")
 ROOT = Path(__file__).resolve().parents[2]
 CONF = json.loads((Path(__file__).parent / "space.json").read_text(encoding="utf-8"))
 
@@ -45,6 +50,7 @@ def index_html(files: list[str]) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="Content-Security-Policy" content="{CSP}">
 <title>{title}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@{STLITE}/build/stlite.css">
 <style>

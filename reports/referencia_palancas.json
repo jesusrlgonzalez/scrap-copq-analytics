@@ -1,0 +1,86 @@
+{
+  "naturaleza": "Planta sintética (semilla 42). Estimación de modelo, no ahorro observado ni efecto causal validado.",
+  "supuestos": {
+    "costo_preventivo_mxn": 4500,
+    "costo_induccion_por_operador_mxn": 15000,
+    "descuento_proveedor": 0.02,
+    "brecha_induccion": 0.5,
+    "n_sims": 2000,
+    "seed": 7
+  },
+  "alcance_incertidumbre": "P10–P90 por simulación de los coeficientes del GLM (β ~ Normal(β̂, Σ̂)): solo incertidumbre de parámetros. No incluye la incertidumbre de la especificación del modelo, de los supuestos de costo ni de la causalidad. En la planta sintética, los efectos fueron sembrados por el generador.",
+  "copq_mxn": 8459560.0,
+  "copq_pct_ventas": 0.018460136935602254,
+  "umbral_h": 170,
+  "palancas": {
+    "mantenimiento": {
+      "ahorro_bruto_p50": 1111335.6100975764,
+      "reclamos_atribuidos_mxn": 0.0,
+      "costo_anual": 84465.88235294119,
+      "ahorro_neto_p10": 995947.9196857195,
+      "ahorro_neto_p50": 1026869.7277446352,
+      "ahorro_neto_p90": 1055953.7114832504
+    },
+    "induccion": {
+      "ahorro_bruto_p50": 227786.22449439333,
+      "reclamos_atribuidos_mxn": 0.0,
+      "costo_anual": 150000.0,
+      "ahorro_neto_p10": 61237.07571340463,
+      "ahorro_neto_p50": 77786.22449439333,
+      "ahorro_neto_p90": 94820.95379817986
+    },
+    "proveedor": {
+      "ahorro_bruto_p50": 349815.73390048184,
+      "reclamos_atribuidos_mxn": 201520.0,
+      "costo_anual": 225931.36000000002,
+      "ahorro_neto_p10": 116137.95375296453,
+      "ahorro_neto_p50": 123884.37390048182,
+      "ahorro_neto_p90": 131636.66829775766
+    }
+  },
+  "total_neto_p50": 1228540.3261395104,
+  "total_pct_copq": 0.14522508571834827,
+  "puente": [
+    {
+      "paso": "Referencia (análisis guiado, README)",
+      "palanca": "—",
+      "mxn": 1228540.33
+    },
+    {
+      "paso": "Mantenimiento: umbral 170 h → 160 h (devianzas casi empatadas)",
+      "palanca": "mantenimiento",
+      "mxn": 37112.99
+    },
+    {
+      "paso": "Mantenimiento: fórmula de preventivos adicionales y anualización 365/días",
+      "palanca": "mantenimiento",
+      "mxn": 3559.16
+    },
+    {
+      "paso": "Inducción: un efecto común en vez de uno por línea",
+      "palanca": "induccion",
+      "mxn": 8636.91
+    },
+    {
+      "paso": "Inducción: sin humedad en el modelo (variable omitida)",
+      "palanca": "induccion",
+      "mxn": 60813.12
+    },
+    {
+      "paso": "Inducción: sin cambio de modelo en el modelo (variable omitida)",
+      "palanca": "induccion",
+      "mxn": 5220.46
+    },
+    {
+      "paso": "Inducción: residuo (turnos y anualización)",
+      "palanca": "induccion",
+      "mxn": 557.17
+    },
+    {
+      "paso": "Proveedor: referencia B en vez de A (efectos iguales, OR ≈ 1) y anualización",
+      "palanca": "proveedor",
+      "mxn": -196.45
+    }
+  ],
+  "total_generico_equivalente": 1344243.6921089226
+}

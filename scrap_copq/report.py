@@ -136,6 +136,10 @@ def report_html(r, issues=None, plant: str = "Planta", data_rows=None) -> str:
             "Costo anual": [mxn(c) if f else "sin capturar" for c, f in zip(lev["costo_anual"], lev["costo_capturado"])],
             "Ahorro neto P50": lev["ahorro_neto_p50"].map(mxn),
             "P10 – P90": [f"{mxn(a)} – {mxn(b)}" for a, b in zip(lev["ahorro_neto_p10"], lev["ahorro_neto_p90"])]})))
+    if "supuestos" in r:
+        parts.append("<p class='note'>Supuestos de costo: " + _e("; ".join(
+            f"{a}: {v}" for a, v in r["supuestos"].itertuples(index=False))) + ". Es una estimación de modelo, "
+            "no un ahorro observado.</p>")
     if r["no_significativas"]:
         parts.append("<p class='note'>Sin efecto demostrado (no se proponen): " + _e("; ".join(r["no_significativas"])) + ".</p>")
 
@@ -148,7 +152,8 @@ def report_html(r, issues=None, plant: str = "Planta", data_rows=None) -> str:
     else:
         parts.append("<li>Menos de 60 días: no hay prueba fuera de muestra.</li>")
     parts.append(f"<li>Sobredispersión del modelo: {r['dispersion']:.2f} (los intervalos ya la incluyen).</li>"
-                 "<li>Intervalos P10–P90 por simulación de los coeficientes; no incluyen cambios futuros del proceso.</li>"
+                 f"<li>{_e(r.get('alcance_incertidumbre', 'Intervalos P10–P90 por simulación de los coeficientes.'))} "
+                 "Tampoco incluyen cambios futuros del proceso.</li>"
                  "<li>El modelo muestra asociación con el scrap; la causa se confirma en piso (D4) y con el piloto (D6).</li></ul>")
     if val and not val["supera_base"]:
         parts.append("<p class='warn'>Criterio de abandono: el modelo no supera al promedio por línea. No pasar a piloto con estas palancas.</p>")

@@ -23,7 +23,8 @@ def _dirty_example():
     return intake.example_with_errors()
 
 
-@st.cache_data(show_spinner="Validando y analizando…")
+# Sin caché a propósito: st.cache_data serializa el resultado y, en Stlite/Pyodide, no puede reconstruir
+# las columnas de texto de pandas al recalcular con el mismo archivo (incidencia INC-V03, nov 2026).
 def _run(content: bytes, settings: dg.Settings):
     data, issues = intake.validate(intake.read_workbook(content))
     return data, issues, dg.diagnose(data, settings)
@@ -92,7 +93,8 @@ def render():
                            altas_operadores_anio=altas, reclamos_atribuidos_proveedor_mxn=recl,
                            costo_extra_proveedor_mxn=extra)
     try:
-        data, issues, r = _run(content, settings)
+        with st.spinner("Validando y analizando…"):
+            data, issues, r = _run(content, settings)
     except intake.DataError as exc:
         st.error(str(exc))
         return

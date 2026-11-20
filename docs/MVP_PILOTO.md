@@ -2,7 +2,7 @@
 
 **Para quién:** gerente de calidad o de planta en un proveedor de autopartes (Tier 1 o 2) u otra manufactura con scrap registrado por corrida.
 **Qué decide:** qué palanca de reducción de scrap financiar primero y con qué ahorro esperado.
-**Qué recibe:** un reporte de una página con el costo de no calidad, las palancas con efecto demostrado y la acción propuesta en formato 8D.
+**Qué recibe:** un reporte de una página con el costo de no calidad, las palancas con asociación estadística demostrada y la acción propuesta en formato 8D.
 
 ## 1. Datos que se piden
 

@@ -19,7 +19,7 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · statistical process control 
 | Wear between maintenance stops on L2 is the largest leak | L2 generates 49 % of scrap cost. Its rate stays at ~1.9 % up to ~170 h after preventive maintenance and reaches 6 % at 310 h; today the interval is 320 h |
 | Volume is misleading | *Lack of fusion* is 5 % of scrapped parts but 16 % of the cost, and caused 6 of the 8 customer claims |
 | The night-shift problem is turnover | All 10 hires of the year started on nights. Each new operator in manual welding multiplies the odds of scrap by 1.34 |
-| The cheap supplier is not cheap | Supplier C delivers 15 % of L1's material but causes 42 % of the cracks; its 2 % discount is lost to scrap and claims |
+| The cheap supplier is not cheap | Supplier C delivers 15 % of L1's material but is linked to 42 % of the cracks; its 2 % discount is lost to scrap and claims |
 
 | Lever | Net annual saving (median) | P10–P90 interval |
 |---|---|---|
@@ -97,7 +97,7 @@ pip install -r requirements-dev.txt
 python -m scrap_copq.generate      # optional: regenerate the synthetic data
 python -m scrap_copq.clean         # cleaning and validation
 python -m scrap_copq.intake plantilla_scrap.xlsx   # Excel template for a real plant
-pytest                             # 24 tests: metrics, cleaning, model, SQL and the MVP intake
+pytest                             # 43 tests: metrics, cleaning, model, SQL, the MVP intake, reconciliation and numeric contract
 streamlit run streamlit_app.py     # dashboard
 jupyter lab notebooks/analisis_scrap_copq.ipynb
 ```

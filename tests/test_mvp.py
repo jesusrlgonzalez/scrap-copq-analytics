@@ -105,3 +105,22 @@ def test_report_is_self_contained_and_escaped(clean_result):
     for text in ("D5 · Acción correctiva", "IATF 16949 · 8.5.1.5", "Preventivo de la línea L2", "le gana"):
         assert text in page
     assert "http" not in page
+
+
+@pytest.mark.parametrize("capturado", [True, False])
+def test_report_separa_asociacion_de_causa_y_ahorro_bruto_de_neto(clean_result, capturado):
+    _, _, r = clean_result
+    r = {**r, "palancas": r["palancas"].assign(costo_capturado=capturado)}
+    pasos = dict(rp.eight_d(r))
+    page = rp.report_html(r)
+    assert rp.D4 in pasos and "Causa raíz" not in page
+    assert pasos[rp.D4].startswith("Factor asociado prioritario (asociación estadística, no causa validada)")
+    assert "efecto demostrado" not in page and "asociación estadística demostrada" in page
+    cifra = rp.mxn(r["palancas"].iloc[0]["ahorro_neto_p50"])
+    if capturado:
+        assert f"ahorro neto de {cifra}" in rp.headline(r) and "cota superior" not in pasos["D5 · Acción correctiva"]
+    else:
+        assert "ahorro bruto (cota superior" in rp.headline(r) and "ahorro neto" not in rp.headline(r)
+        assert "Ahorro bruto esperado (cota superior" in pasos["D5 · Acción correctiva"]
+        assert page.count("bruto · cota superior") == len(r["palancas"])
+    assert cifra in pasos["D5 · Acción correctiva"]

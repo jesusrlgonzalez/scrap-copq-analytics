@@ -32,6 +32,11 @@ def _table(df: pd.DataFrame) -> str:
     return f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
 
 
+def ahorro_tipo(costo_capturado: bool) -> str:
+    """Etiqueta del ahorro: neto si el costo de la palanca está capturado; si no, bruto y cota superior."""
+    return "neto" if costo_capturado else "bruto · cota superior"
+
+
 def headline(r) -> str:
     k, lev = r["kpis"], r["palancas"]
     share = "" if math.isnan(k["copq_pct_ventas"]) else f" ({k['copq_pct_ventas']:.2%} de las ventas)"
@@ -40,11 +45,15 @@ def headline(r) -> str:
         return text + " Ninguna palanca tiene un efecto estadísticamente distinto de cero con estos datos."
     top = lev.iloc[0]
     total = lev["ahorro_neto_p50"].clip(lower=0).sum()
-    text += (f" La palanca principal es «{top['palanca']}»: ahorro neto de {mxn(top['ahorro_neto_p50'])} al año "
+    kind = "ahorro neto" if top["costo_capturado"] else "ahorro bruto (cota superior: falta capturar el costo de implementarla)"
+    text += (f" La palanca principal es «{top['palanca']}»: {kind} de {mxn(top['ahorro_neto_p50'])} al año "
              f"(P10–P90: {mxn(top['ahorro_neto_p10'])} a {mxn(top['ahorro_neto_p90'])})")
     if total > 0 and len(lev) > 1:
         text += f", {top['ahorro_neto_p50'] / total:.0%} del total de las palancas"
     return text + "."
+
+
+D4 = "D4 · Hipótesis de causa raíz por validar"
 
 
 def eight_d(r) -> list[tuple[str, str]]:
@@ -60,7 +69,7 @@ def eight_d(r) -> list[tuple[str, str]]:
         steps.append(("D3 · Contención", f"Vigilar la carta p′ de {worst} a diario; hoy {row['dias_fuera_limites']} de {row['dias']} días "
                       "salen de límites. Inspección reforzada en los turnos con señal hasta cerrar D5."))
     if lev.empty:
-        steps.append(("D4 · Causa raíz", "El modelo no aísla una causa con significancia estadística. Recolectar las columnas "
+        steps.append((D4, "El modelo no encuentra un factor asociado con significancia estadística. Recolectar las columnas "
                       "opcionales que falten (horas desde mantenimiento, proveedor, operadores nuevos) y repetir."))
         return steps
     top = lev.iloc[0]
@@ -78,9 +87,12 @@ def eight_d(r) -> list[tuple[str, str]]:
     elif top["tipo"] == "induccion":
         evidence = f"Cada operador nuevo en la corrida multiplica los momios de scrap por {top['razon_momios_por_operador']:.2f}."
     steps += [
-        ("D4 · Causa raíz", evidence + " Confirmar en piso con el equipo (5 porqués / Ishikawa) antes de D5."),
-        ("D5 · Acción correctiva", f"{top['palanca']}. Ahorro neto esperado {mxn(top['ahorro_neto_p50'])} al año"
-         + ("" if top["costo_capturado"] else " (bruto: falta capturar el costo de implementarla)") + "."),
+        (D4, "Factor asociado prioritario (asociación estadística, no causa validada): " + evidence
+         + " Verificar en piso con el equipo (5 porqués / Ishikawa) antes de D5."),
+        ("D5 · Acción correctiva", f"{top['palanca']}. "
+         + ("Ahorro neto esperado" if top["costo_capturado"]
+            else "Ahorro bruto esperado (cota superior: falta capturar el costo de implementarla)")
+         + f" {mxn(top['ahorro_neto_p50'])} al año, si la hipótesis se confirma en D6."),
         ("D6 · Verificación", "Aplicar en una línea o grupo piloto y dejar otro comparable como control durante 8 semanas; "
          "la acción es eficaz si la carta p′ del piloto baja de forma sostenida y el control no."),
         ("D7 · Prevención", "Actualizar plan de control, AMEF y plan de mantenimiento; repetir este diagnóstico cada trimestre."),
@@ -127,21 +139,22 @@ def report_html(r, issues=None, plant: str = "Planta", data_rows=None) -> str:
                      + "<p class='note'>Carta p′ de Laney: corrige la sobredispersión de subgrupos grandes, que en la carta p clásica "
                        "dispara falsas alarmas.</p>")
 
-    parts.append("<h2>4 · Palancas con efecto demostrado</h2>")
+    parts.append("<h2>4 · Palancas con asociación estadística demostrada</h2>")
     if lev.empty:
         parts.append("<p>Ninguna.</p>")
     else:
         parts.append(_table(pd.DataFrame({
             "Palanca": lev["palanca"], "Piezas evitadas/año": lev["piezas_evitadas_anio"].map("{:,.0f}".format),
             "Costo anual": [mxn(c) if f else "sin capturar" for c, f in zip(lev["costo_anual"], lev["costo_capturado"])],
-            "Ahorro neto P50": lev["ahorro_neto_p50"].map(mxn),
+            "Tipo de ahorro": lev["costo_capturado"].map(ahorro_tipo),
+            "Ahorro P50": lev["ahorro_neto_p50"].map(mxn),
             "P10 – P90": [f"{mxn(a)} – {mxn(b)}" for a, b in zip(lev["ahorro_neto_p10"], lev["ahorro_neto_p90"])]})))
     if "supuestos" in r:
         parts.append("<p class='note'>Supuestos de costo: " + _e("; ".join(
             f"{a}: {v}" for a, v in r["supuestos"].itertuples(index=False))) + ". Es una estimación de modelo, "
             "no un ahorro observado.</p>")
     if r["no_significativas"]:
-        parts.append("<p class='note'>Sin efecto demostrado (no se proponen): " + _e("; ".join(r["no_significativas"])) + ".</p>")
+        parts.append("<p class='note'>Sin asociación demostrada (no se proponen): " + _e("; ".join(r["no_significativas"])) + ".</p>")
 
     parts.append("<h2>5 · ¿Qué tan confiable es?</h2><ul>")
     if val:

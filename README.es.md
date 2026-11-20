@@ -19,7 +19,7 @@ Python (pandas, statsmodels) · SQL (PostgreSQL) · control estadístico de proc
 | El desgaste entre mantenimientos de L2 es la mayor fuga | L2 genera el 49 % del costo de scrap. Su tasa se mantiene en ~1.9 % hasta ~170 h desde el preventivo y llega a 6 % a las 310 h; hoy el intervalo es de 320 h |
 | El volumen engaña | La *falta de fusión* es el 5 % de las piezas desechadas pero el 16 % del costo, y originó 6 de los 8 reclamos de cliente |
 | El problema del turno nocturno es la rotación | Las 10 altas del año entraron de noche. Cada operador nuevo en soldadura manual multiplica por 1.34 los momios de scrap |
-| El proveedor barato no es barato | El proveedor C surte el 15 % del material de L1 pero causa el 42 % de las grietas; su descuento de 2 % se va en scrap y reclamos |
+| El proveedor barato no es barato | El proveedor C surte el 15 % del material de L1 pero concentra el 42 % de las grietas; su descuento de 2 % se va en scrap y reclamos |
 
 | Palanca | Ahorro neto anual (mediana) | Intervalo P10–P90 |
 |---|---|---|
@@ -97,7 +97,7 @@ pip install -r requirements-dev.txt
 python -m scrap_copq.generate      # opcional: regenera los datos sintéticos
 python -m scrap_copq.clean         # limpieza y validación
 python -m scrap_copq.intake plantilla_scrap.xlsx   # plantilla de Excel para una planta real
-pytest                             # 24 pruebas: métricas, limpieza, modelo, SQL y entrada del MVP
+pytest                             # 43 pruebas: métricas, limpieza, modelo, SQL, entrada del MVP, conciliación y contrato numérico
 streamlit run streamlit_app.py     # tablero
 jupyter lab notebooks/analisis_scrap_copq.ipynb
 ```

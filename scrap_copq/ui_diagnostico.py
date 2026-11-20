@@ -114,14 +114,16 @@ def render():
 
     lev = r["palancas"]
     if not lev.empty:
-        st.markdown("**Palancas con efecto demostrado (ahorro anual)**")
+        st.markdown("**Palancas con asociación estadística demostrada (ahorro anual)**")
         st.dataframe(lev[["palanca", "piezas_evitadas_anio", "costo_anual", "ahorro_neto_p10", "ahorro_neto_p50", "ahorro_neto_p90"]]
+                     .assign(tipo=lev["costo_capturado"].map(rp.ahorro_tipo))
                      .rename(columns={"palanca": "Palanca", "piezas_evitadas_anio": "Piezas evitadas", "costo_anual": "Costo",
-                                      "ahorro_neto_p10": "Neto P10", "ahorro_neto_p50": "Neto P50", "ahorro_neto_p90": "Neto P90"})
-                     .style.format({"Piezas evitadas": "{:,.0f}", "Costo": "${:,.0f}", "Neto P10": "${:,.0f}",
-                                    "Neto P50": "${:,.0f}", "Neto P90": "${:,.0f}"}), hide_index=True)
+                                      "tipo": "Tipo de ahorro", "ahorro_neto_p10": "Ahorro P10", "ahorro_neto_p50": "Ahorro P50",
+                                      "ahorro_neto_p90": "Ahorro P90"})
+                     .style.format({"Piezas evitadas": "{:,.0f}", "Costo": "${:,.0f}", "Ahorro P10": "${:,.0f}",
+                                    "Ahorro P50": "${:,.0f}", "Ahorro P90": "${:,.0f}"}), hide_index=True)
         if not lev["costo_capturado"].all():
-            st.warning("Hay palancas sin costo capturado: su ahorro neto es una cota superior, no una estimación neta.")
+            st.warning("Hay palancas sin costo capturado: su ahorro es bruto y una cota superior, no una estimación neta.")
         st.caption(r["alcance_incertidumbre"] + " " + r["especificacion"] +
                    " Es una estimación de modelo: no es un ahorro observado ni prueba causalidad.")
     left, right = st.columns(2)

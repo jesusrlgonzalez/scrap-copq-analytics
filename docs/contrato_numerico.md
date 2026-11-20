@@ -6,6 +6,15 @@ divergen, la prueba falla.
 
 Planta sintética (semilla 42). Ninguna cifra es un ahorro observado ni un efecto causal validado.
 
+## Alcance
+
+El contrato protege **solo el escenario de referencia**: los datos de la planta sintética, los supuestos de costo
+`REFERENCIA` (`scrap_copq/supuestos.py`), la especificación de referencia del modelo y las cifras que de ellos publica
+el README. No restringe otros escenarios económicos: los supuestos que el usuario cambia en el tablero, los datos que
+sube en «Tus datos» o un escenario nuevo pueden dar otras cifras, otro umbral u otro orden de palancas sin violar el
+contrato. Cambiar el escenario de referencia es legítimo si se documenta en el CHANGELOG y se regeneran juntos la
+referencia, este documento y el README.
+
 ## Reglas
 
 | Regla | Qué cubre | Criterio |

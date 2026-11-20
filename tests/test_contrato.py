@@ -63,6 +63,17 @@ def test_r4_decisiones_estables(referencia):
     assert pal[orden[0]]["ahorro_neto_p50"] / referencia["total_neto_p50"] > 0.80
 
 
+def test_otro_escenario_economico_no_esta_restringido():
+    """El contrato fija el escenario de referencia, no los demás: otros supuestos pueden cambiar cifras y orden."""
+    from dataclasses import replace
+
+    from scrap_copq.supuestos import REFERENCIA
+    t = cc.tablas_planta()
+    _, sav = cc.analisis_guiado(t, supuestos=replace(REFERENCIA, costo_preventivo_mxn=10 * REFERENCIA.costo_preventivo_mxn))
+    ref = cc.escenario_referencia(t)
+    assert sav.loc["mantenimiento", "ahorro_neto_p50"] < ref["palancas"]["mantenimiento"]["ahorro_neto_p50"]
+
+
 def test_r5_tolerancias_no_se_relajan():
     tol = {k: float(v) for k, v in _filas("Tolerancias fijadas antes de comparar")}
     assert list(tol.values()) == [TOL_RTOL, TOL_MILLONES, TOL_PCT]

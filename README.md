@@ -97,7 +97,7 @@ pip install -r requirements-dev.txt
 python -m scrap_copq.generate      # optional: regenerate the synthetic data
 python -m scrap_copq.clean         # cleaning and validation
 python -m scrap_copq.intake plantilla_scrap.xlsx   # Excel template for a real plant
-pytest                             # 43 tests: metrics, cleaning, model, SQL, the MVP intake, reconciliation and numeric contract
+pytest                             # 44 tests: metrics, cleaning, model, SQL, the MVP intake, reconciliation and numeric contract
 streamlit run streamlit_app.py     # dashboard
 jupyter lab notebooks/analisis_scrap_copq.ipynb
 ```

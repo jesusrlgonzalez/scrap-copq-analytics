@@ -4,6 +4,13 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Changed
+- The 8D report no longer labels a model finding as a root cause: D4 is now «Hipótesis de causa raíz por validar» and names the prioritised associated factor, to be verified on the floor; D5 states the saving holds only if D6 confirms the hypothesis. «Palancas con efecto demostrado» becomes «Palancas con asociación estadística demostrada» in the report, the dashboard and `docs/MVP_PILOTO.md`; the README says supplier C is linked to (not causes) 42 % of the cracks.
+- When a lever's cost is not captured, the headline, D5, the report table and the dashboard table call its saving *gross / upper bound* instead of *net*. No figure changes.
+
+### Added
+- Numeric contract `docs/contrato_numerico.md` and `tests/test_contrato.py` (rules R1–R5): input hashes and row counts, same-environment reproduction, tolerance of every published figure, stable decisions (threshold, lever order, positive P10, leading lever) and no relaxed tolerances. Each rule was shown to fail on a controlled infraction in a throw-away copy.
+
 ### Fixed
 - The "Tus datos" diagnosis no longer sets the onboarding and supplier-change costs to zero by default. Both analyses now take their costs from one specification (`scrap_copq/supuestos.py`) and the same cost functions. A missing hire count is flagged as *not captured* (upper bound) instead of being silently zero. On the synthetic template, the default net total drops from MXN 1.52 M to 1.29 M.
 - The dashboard savings simulator uses the reference number of simulations, so its initial values match the README (MXN 1,228,540).

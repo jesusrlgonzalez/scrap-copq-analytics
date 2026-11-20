@@ -9,7 +9,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - When a lever's cost is not captured, the headline, D5, the report table and the dashboard table call its saving *gross / upper bound* instead of *net*. No figure changes.
 
 ### Added
-- Numeric contract `docs/contrato_numerico.md` and `tests/test_contrato.py` (rules R1–R5): input hashes and row counts, same-environment reproduction, tolerance of every published figure, stable decisions (threshold, lever order, positive P10, leading lever) and no relaxed tolerances. Each rule was shown to fail on a controlled infraction in a throw-away copy.
+- Numeric contract (reference scenario only; other economic scenarios are not restricted) `docs/contrato_numerico.md` and `tests/test_contrato.py` (rules R1–R5): input hashes and row counts, same-environment reproduction, tolerance of every published figure, stable decisions (threshold, lever order, positive P10, leading lever) and no relaxed tolerances. Each rule was shown to fail on a controlled infraction in a throw-away copy.
 
 ### Fixed
 - The "Tus datos" diagnosis no longer sets the onboarding and supplier-change costs to zero by default. Both analyses now take their costs from one specification (`scrap_copq/supuestos.py`) and the same cost functions. A missing hire count is flagged as *not captured* (upper bound) instead of being silently zero. On the synthetic template, the default net total drops from MXN 1.52 M to 1.29 M.

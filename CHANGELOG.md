@@ -4,6 +4,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Fixed
+- «Tus datos» in the browser demo crashed on any recalculation with the same file (for example after changing the plant name): `st.cache_data` stored the diagnosis with pickle and Stlite/Pyodide could not rebuild pandas text columns (`NotImplementedError`). `_run` is no longer cached; a spinner shows while it computes. New `tests/test_ui_recalculo.py` runs the app three times with the same file, changes the plant name and one cost assumption, and fails if `_run` is cached again. No figure changes.
+
 ### Changed
 - The 8D report no longer labels a model finding as a root cause: D4 is now «Hipótesis de causa raíz por validar» and names the prioritised associated factor, to be verified on the floor; D5 states the saving holds only if D6 confirms the hypothesis. «Palancas con efecto demostrado» becomes «Palancas con asociación estadística demostrada» in the report, the dashboard and `docs/MVP_PILOTO.md`; the README says supplier C is linked to (not causes) 42 % of the cracks.
 - When a lever's cost is not captured, the headline, D5, the report table and the dashboard table call its saving *gross / upper bound* instead of *net*. No figure changes.
